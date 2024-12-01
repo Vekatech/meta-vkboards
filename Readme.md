@@ -1,4 +1,4 @@
-# meta-vkrzg2lc
+# meta-vkboards
 1. create source dir
     ``` bash
     mkdir -p $HOME/work/rzg_vlp_305
