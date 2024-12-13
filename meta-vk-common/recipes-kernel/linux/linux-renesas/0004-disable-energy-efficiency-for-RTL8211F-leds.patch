@@ -1,0 +1,33 @@
+From 3ce56f82f82f02e440793cba821361775d5153a2 Mon Sep 17 00:00:00 2001
+From: dtodoroff <d.todorov@vekatech.com>
+Date: Fri, 1 Nov 2024 11:41:40 +0200
+Subject: [PATCH 04/20] disable energy efficiency for RTL8211F leds
+
+
+diff --git a/drivers/net/phy/realtek.c b/drivers/net/phy/realtek.c
+index b4879306bb8a..ff1e933b411e 100644
+--- a/drivers/net/phy/realtek.c
++++ b/drivers/net/phy/realtek.c
+@@ -29,6 +29,9 @@
+ #define RTL8211F_PHYCR1				0x18
+ #define RTL8211F_INSR				0x1d
+ 
++#define RTL8211F_LED_CRTL			0x10
++#define RTL8211F_EEE				0x11
++
+ #define RTL8211F_TX_DELAY			BIT(8)
+ #define RTL8211F_RX_DELAY			BIT(3)
+ 
+@@ -185,6 +188,9 @@ static int rtl8211f_config_init(struct phy_device *phydev)
+ 	u16 val;
+ 	int ret;
+ 
++	phy_write_paged(phydev, 0xd04, RTL8211F_LED_CRTL, 0x617f);
++	phy_write_paged(phydev, 0xd04, RTL8211F_EEE, 0);
++
+ 	val = RTL8211F_ALDPS_ENABLE | RTL8211F_ALDPS_PLL_OFF | RTL8211F_ALDPS_XTAL_OFF;
+ 	phy_modify_paged_changed(phydev, 0xa43, RTL8211F_PHYCR1, val, val);
+ 
+-- 
+2.34.1
+

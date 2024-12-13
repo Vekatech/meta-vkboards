@@ -1,0 +1,72 @@
+From 647de1f794f1bc4d1fdefd9a7679f874c2f9c699 Mon Sep 17 00:00:00 2001
+From: dtodoroff <d.todorov@vekatech.com>
+Date: Wed, 4 Dec 2024 13:28:17 +0200
+Subject: [PATCH 10/10] add opencv accelerator support for vkrzv2l board
+
+
+diff --git a/board/renesas/vkrzv2l/Kconfig b/board/renesas/vkrzv2l/Kconfig
+index 4078f76454..022e8b5a65 100644
+--- a/board/renesas/vkrzv2l/Kconfig
++++ b/board/renesas/vkrzv2l/Kconfig
+@@ -20,5 +20,9 @@ config SYS_MMC_IMG_LOAD_PART
+ 	int
+ 	default 1
+ 
++config OPENCVA
++	int
++	default 0
++
+ endif
+ 
+diff --git a/include/configs/vkrzv2l.h b/include/configs/vkrzv2l.h
+index 8c1e62a76a..7d9a36200c 100644
+--- a/include/configs/vkrzv2l.h
++++ b/include/configs/vkrzv2l.h
+@@ -64,6 +64,18 @@
+ #define I2C_VERSACLOCK_ADDR_LEN 1
+ #define I2C_SYS_MODULE    3
+ 
++#define CONFIG_OPENCVA 1
++
++#define BOOTIMAGE    "booti ${image_addr} - ${dtb_addr}; "
++
++#if CONFIG_OPENCVA == 1
++#define MMCBOOTIMAGE  \
++    "run loadopencva; " \
++    BOOTIMAGE
++#else
++#define MMCBOOTIMAGE    BOOTIMAGE
++#endif
++
+ #define DEFAULT_MMC_UENV_ARGS \
+     MMC_FDT_OVERLAY_SETTING \
+     NET_FDT_OVERLAY_SETTING \
+@@ -120,9 +132,12 @@
+     "mmcpart=" __stringify(CONFIG_SYS_MMC_IMG_LOAD_PART) "\0" \
+     "dtb_addr=0x48000000 \0" \
+     "image_addr=0x48080000 \0" \
++    "opencva_addr=0xb7000000 \0" \
++    "opencva=OpenCV_Bin.bin \0" \
+     "mmcbootargs=setenv bootargs rw rootwait earlycon root=/dev/mmcblk"__stringify(CONFIG_SYS_MMC_DEV)"p2 ${extrabootargs}\0" \
+     "loadimage=fatload mmc ${mmcdev}:${mmcpart} ${image_addr} ${image}\0" \
+     "loadfdt=echo loading ${fdtfile};fatload mmc ${mmcdev}:${mmcpart} ${dtb_addr} ${fdtfile}\0" \
++    "loadopencva=echo loading ${opencva};fatload mmc ${mmcdev}:${mmcpart} ${opencva_addr} ${opencva}\0" \
+     "mmcload=mmc dev ${mmcdev};run loadfdt;run loadimage;run mmcbootargs \0" \
+     "bootimage=run mmcload; booti $image_addr - $dtb_addr \0" \
+ 	"netrootfs=/nfs/vkrzv2l\0" \
+diff --git a/include/configs/vkrzv2l_overlay.h b/include/configs/vkrzv2l_overlay.h
+index fd49bbc4bf..6bdee51922 100644
+--- a/include/configs/vkrzv2l_overlay.h
++++ b/include/configs/vkrzv2l_overlay.h
+@@ -44,7 +44,7 @@
+ 		"run mmcbootargs; "                      \
+ 		"if run loadfdt; then "                  \
+ 			MMC_RUN_FDT_OVERLAY                  \
+-			"booti ${image_addr} - ${dtb_addr}; "  \
++			MMCBOOTIMAGE                         \
+ 		"else "                                  \
+ 			"echo WARN: Cannot load the DT; "    \
+ 		"fi;\0"
+-- 
+2.34.1
+

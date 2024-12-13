@@ -1,0 +1,32 @@
+COMPATIBLE_MACHINE_vkrzg2l = "vkrzg2l"
+COMPATIBLE_MACHINE_vkrzv2l = "vkrzv2l"
+COMPATIBLE_MACHINE_vkrzg2lc = "vkrzg2lc"
+COMPATIBLE_MACHINE_vkcmg2lc = "vkcmg2lc"
+COMPATIBLE_MACHINE_vk-d184280e = "vk-d184280e"
+COMPATIBLE_MACHINE_vkrzg2ul = "vkrzg2ul"
+
+PLATFORM_vkrzg2l = "g2l"
+EXTRA_FLAGS_vkrzg2l = "BOARD=vkrzg2l SPI_FLASH=MX25U25645G"
+
+PLATFORM_vkrzv2l = "v2l"
+EXTRA_FLAGS_vkrzv2l = "BOARD=vkrzv2l SPI_FLASH=MX25U25645G"
+
+PLATFORM_vkrzg2lc = "g2l"
+EXTRA_FLAGS_vkrzg2lc = "BOARD=vkrzg2lc SPI_FLASH=MX25L51245G"
+
+PLATFORM_vkcmg2lc = "g2l"
+EXTRA_FLAGS_vkcmg2lc = "BOARD=vkcmg2lc SPI_FLASH=MX25L51245G"
+
+PLATFORM_vk-d184280e = "g2l"
+EXTRA_FLAGS_vk-d184280e = "BOARD=vkcmg2lc SPI_FLASH=MX25L51245G"
+
+PLATFORM_vkrzg2ul = "g2ul"
+EXTRA_FLAGS_vkrzg2ul = "BOARD=vkrzg2ul SOC_TYPE=1 SPI_FLASH=MX25L12833F"
+
+
+FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
+
+SRC_URI += "\
+	file://0001-add-vkboards-support.patch \
+"
+

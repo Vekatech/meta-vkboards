@@ -1,0 +1,76 @@
+From c5f16ab7bd96f9e569629c2dd4a633d2ac6d482b Mon Sep 17 00:00:00 2001
+From: Stanimir Bonev <stanimir@x-cas.eu>
+Date: Thu, 11 Jan 2024 08:32:24 +0200
+Subject: [PATCH] Restore compatibility with the Linux 5.10 LTS kernel
+
+---
+ instrumentation/events/lttng-module/block.h | 18 ++++++++++++------
+ 1 file changed, 12 insertions(+), 6 deletions(-)
+
+diff --git a/instrumentation/events/lttng-module/block.h b/instrumentation/events/lttng-module/block.h
+index b0fbfd8..f29d0d4 100644
+--- a/instrumentation/events/lttng-module/block.h
++++ b/instrumentation/events/lttng-module/block.h
+@@ -285,7 +285,8 @@ LTTNG_TRACEPOINT_EVENT_INSTANCE(block_rq_with_error, block_rq_abort,
+ )
+ #endif
+ 
+-#if (LTTNG_LINUX_VERSION_CODE >= LTTNG_KERNEL_VERSION(5,11,0))
++#if (LTTNG_LINUX_VERSION_CODE >= LTTNG_KERNEL_VERSION(5,11,0) \
++	|| LTTNG_KERNEL_RANGE(5,10,137, 5,11,0))
+ /**
+  * block_rq_requeue - place block IO request back on a queue
+  * @rq: block IO operation request
+@@ -477,7 +478,8 @@ LTTNG_TRACEPOINT_EVENT_INSTANCE(block_rq_with_error, block_rq_complete,
+ 
+ #endif /* #else #if (LTTNG_LINUX_VERSION_CODE >= LTTNG_KERNEL_VERSION(3,15,0)) */
+ 
+-#if (LTTNG_LINUX_VERSION_CODE >= LTTNG_KERNEL_VERSION(5,11,0))
++#if (LTTNG_LINUX_VERSION_CODE >= LTTNG_KERNEL_VERSION(5,11,0) \
++	|| LTTNG_KERNEL_RANGE(5,10,137, 5,11,0))
+ LTTNG_TRACEPOINT_EVENT_CLASS(block_rq,
+ 
+ 	TP_PROTO(struct request *rq),
+@@ -612,7 +614,8 @@ LTTNG_TRACEPOINT_EVENT_CLASS_CODE(block_rq,
+ )
+ #endif /* #else #if (LTTNG_LINUX_VERSION_CODE >= LTTNG_KERNEL_VERSION(4,11,0)) */
+ 
+-#if (LTTNG_LINUX_VERSION_CODE >= LTTNG_KERNEL_VERSION(5,11,0))
++#if (LTTNG_LINUX_VERSION_CODE >= LTTNG_KERNEL_VERSION(5,11,0) \
++	|| LTTNG_KERNEL_RANGE(5,10,137, 5,11,0))
+ /**
+  * block_rq_insert - insert block operation request into queue
+  * @rq: block IO operation request
+@@ -647,7 +650,8 @@ LTTNG_TRACEPOINT_EVENT_INSTANCE(block_rq, block_rq_insert,
+ )
+ #endif
+ 
+-#if (LTTNG_LINUX_VERSION_CODE >= LTTNG_KERNEL_VERSION(5,11,0))
++#if (LTTNG_LINUX_VERSION_CODE >= LTTNG_KERNEL_VERSION(5,11,0) \
++	|| LTTNG_KERNEL_RANGE(5,10,137, 5,11,0))
+ /**
+  * block_rq_issue - issue pending block IO request operation to device driver
+  * @rq: block IO operation operation request
+@@ -678,7 +682,8 @@ LTTNG_TRACEPOINT_EVENT_INSTANCE(block_rq, block_rq_issue,
+ )
+ #endif
+ 
+-#if (LTTNG_LINUX_VERSION_CODE >= LTTNG_KERNEL_VERSION(5,11,0))
++#if (LTTNG_LINUX_VERSION_CODE >= LTTNG_KERNEL_VERSION(5,11,0) \
++	|| LTTNG_KERNEL_RANGE(5,10,137, 5,11,0))
+ /**
+  * block_rq_merge - merge request with another one in the elevator
+  * @rq: block IO operation operation request
+@@ -1534,7 +1539,8 @@ LTTNG_TRACEPOINT_EVENT(block_bio_remap,
+ )
+ #endif
+ 
+-#if (LTTNG_LINUX_VERSION_CODE >= LTTNG_KERNEL_VERSION(5,11,0))
++#if (LTTNG_LINUX_VERSION_CODE >= LTTNG_KERNEL_VERSION(5,11,0) \
++	|| LTTNG_KERNEL_RANGE(5,10,137, 5,11,0))
+ /**
+  * block_rq_remap - map request for a block operation request
+  * @rq: block IO operation request
+-- 
+2.25.1
+

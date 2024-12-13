@@ -1,0 +1,1876 @@
+From 06e14b87e8374e53624e4ed3c672d30048b4766e Mon Sep 17 00:00:00 2001
+From: dtodoroff <d.todorov@vekatech.com>
+Date: Mon, 25 Nov 2024 11:11:39 +0200
+Subject: [PATCH 15/20] add support for vkrzg2l board and its overlays
+
+
+diff --git a/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/Makefile b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/Makefile
+new file mode 100644
+index 000000000000..2940b778a7c1
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/Makefile
+@@ -0,0 +1,23 @@
++# SPDX-License-Identifier: GPL-2.0
++
++# required for overlay support
++DTC_FLAGS += -@
++
++dtb-y += vkrz-cm33.dtbo
++dtb-y += vkrz-csi-imx219.dtbo
++dtb-y += vkrz-dsi-av_disp2.dtbo
++dtb-y += vkrz-dsi-hdmi.dtbo
++dtb-y += vkrz-dsi-kd070hdfia030.dtbo
++dtb-y += vkrz-dsi-kd101wxfid045.dtbo
++dtb-y += vkrz-dsi-vklcd-ee0700.dtbo
++dtb-y += vkrz-dsi-vklcd07.dtbo
++dtb-y += vkrz-exp-pwm0.dtbo
++dtb-y += vkrz-exp-pwm1.dtbo
++dtb-y += vkrz-exp-pwm2.dtbo
++dtb-y += vkrz-exp-riic2.dtbo
++dtb-y += vkrz-exp-rspi1.dtbo
++dtb-y += vkrz-exp-scif2.dtbo
++dtb-y += vkrz-exp-scif2_rts_cts.dtbo
++dtb-y += vkrz-sdhi0-emmc.dtbo
++dtb-y += vkrz-sdhi0-sdhi.dtbo
++
+diff --git a/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-cm33.dts b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-cm33.dts
+new file mode 100755
+index 000000000000..c4d06af4bb8c
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-cm33.dts
+@@ -0,0 +1,75 @@
++/*
++ * Copyright 2023 Vekatech
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ */
++
++/dts-v1/;
++/plugin/;
++
++#include <dt-bindings/interrupt-controller/arm-gic.h>
++
++
++/ {
++	compatible = "vekatech,vkrzg2l", "renesas,r9a07g044";
++	fragment@2 {
++		target-path = "/";
++		__overlay__ {
++			#address-cells = <2>;
++			#size-cells = <2>;
++
++			vring-ctl0@43000000 {
++				compatible = "vring_uio";
++				reg = <0x0 0x43000000 0x0 0x100000>;
++				no-map;
++			};
++
++			vring-ctl1@43100000 {
++				compatible = "vring_uio";
++				reg = <0x0 0x43100000 0x0 0x100000>;
++				no-map;
++			};
++
++			vring-shm0@43200000 {
++				compatible = "shm_uio";
++				reg = <0x0 0x43200000 0x0 0x300000>;
++				no-map;
++			};
++
++			vring-shm1@43500000 {
++				compatible = "shm_uio";
++				reg = <0x0 0x43500000 0x0 0x300000>;
++				no-map;
++			};
++
++			rsctbl@42f00000 {
++				compatible = "shm_uio";
++				reg = <0x0 0x42f00000 0x0 0x1000>;
++				no-map;
++			};
++
++			mhu-shm@42f01000 {
++				compatible = "shm_uio";
++				reg = <0x0 0x42f01000 0x0 0x1000>;
++				no-map;
++			};
++
++			mbox-uio@10400000 {
++				compatible = "mbox_uio";
++				reg = <0x0 0x10400000 0x0 0x1000>;
++				interrupt-parent = <&gic>;
++				interrupts = <GIC_SPI 75 IRQ_TYPE_LEVEL_HIGH>;
++				status = "okay";
++			};
++		};
++	};
++};
++
+diff --git a/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-csi-imx219.dts b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-csi-imx219.dts
+new file mode 100644
+index 000000000000..7e2457e32ebb
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-csi-imx219.dts
+@@ -0,0 +1,28 @@
++/*
++ * Copyright 2023 Vekatech
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ */
++
++/dts-v1/;
++/plugin/;
++
++&cru {
++	status = "okay";
++};
++
++&csi2 {
++	status = "okay";
++};
++
++&imx219 {
++	status = "okay";
++};
+diff --git a/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-dsi-av_disp2.dts b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-dsi-av_disp2.dts
+new file mode 100644
+index 000000000000..6150787627b6
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-dsi-av_disp2.dts
+@@ -0,0 +1,66 @@
++/*
++ * Copyright 2023 Vekatech
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ */
++
++// Avnet Display AES-ACC-MAAX-DISP2
++
++/dts-v1/;
++/plugin/;
++
++#include <dt-bindings/pinctrl/rzg2l-pinctrl.h>
++#include <dt-bindings/gpio/gpio.h>
++
++&du {
++	status = "okay";
++};
++
++&dsi0 {
++	status = "okay";
++	ports {
++		port@1 {
++			dsi0_out: endpoint {
++				remote-endpoint = <&panel_in>;
++			};
++		};
++	};
++};
++
++&mipi_panel {
++	status = "okay";
++	compatible = "avnet,ph720128t005","ilitek,ili9881c";
++	lcd-model = "ph720128t005";
++	switch-gpios = <&pinctrl RZG2L_GPIO(43, 0) GPIO_ACTIVE_HIGH>;
++	reset-gpios  = <&pinctrl RZG2L_GPIO(43, 3) GPIO_ACTIVE_LOW>;
++	dsi-lanes = <2>;
++	port {
++		panel_in: endpoint {
++			remote-endpoint = <&dsi0_out>;
++		};
++	};
++};
++
++&gpt5 {
++	status = "okay";
++};
++
++&backlight {
++	status = "okay";
++};
++
++&gt911 {
++	reset-gpios = <&pinctrl RZG2L_GPIO(43, 1) GPIO_ACTIVE_HIGH>; /* DSI_TS_RST */
++	touchscreen-size-x = <720>;
++	touchscreen-size-y = <1280>;
++	status = "okay";
++};
++
+diff --git a/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-dsi-hdmi.dts b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-dsi-hdmi.dts
+new file mode 100644
+index 000000000000..0bb63868b214
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-dsi-hdmi.dts
+@@ -0,0 +1,58 @@
++/*
++ * Copyright 2023 Vekatech
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ */
++
++/dts-v1/;
++/plugin/;
++
++&du {
++	status = "okay";
++	dsi-lanes = <4>;
++};
++
++&hdmi_con {
++	status = "okay";
++};
++
++&dsi0 {
++	status = "okay";
++
++	ports {
++		port@1 {
++			dsi0_out: endpoint {
++				remote-endpoint = <&hdmi_in>;
++				data-lanes = <0 1 2 3>;
++			};
++		};
++	};
++};
++
++&lt8912b {
++	status = "okay";
++
++	ports {
++		#address-cells = <1>;
++		#size-cells = <0>;
++
++		port@0 {
++			reg = <0>;
++
++			hdmi_in: endpoint {
++				data-lanes = <0 1 2 3>;
++				remote-endpoint = <&dsi0_out>;
++			};
++		};
++
++	};
++};
++
+diff --git a/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-dsi-kd070hdfia030.dts b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-dsi-kd070hdfia030.dts
+new file mode 100644
+index 000000000000..af6cf7047263
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-dsi-kd070hdfia030.dts
+@@ -0,0 +1,71 @@
++/*
++ * Copyright 2024 Vekatech
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ */
++
++/dts-v1/;
++/plugin/;
++
++#include <dt-bindings/pinctrl/rzg2l-pinctrl.h>
++#include <dt-bindings/gpio/gpio.h>
++
++&du {
++	status = "okay";
++};
++
++&dsi0 {
++	status = "okay";
++	ports {
++		port@1 {
++			dsi0_out: endpoint {
++				remote-endpoint = <&panel_in>;
++			};
++		};
++	};
++};
++
++
++&mipi_panel {
++	status = "okay";
++	compatible = "vekatech,vklcd-kd070hdfia030","fitipower,ek79007ad";
++
++	reset-gpios = <&pinctrl RZG2L_GPIO(43, 3) GPIO_ACTIVE_LOW>;
++	lcd-model = "kd070hdfia030";
++	dsi-lanes = <4>;
++	port {
++		panel_in: endpoint {
++			remote-endpoint = <&dsi0_out>;
++		};
++	};
++};
++
++&gpt5 {
++	status = "okay";
++};
++
++&backlight {
++	status = "okay";
++};
++
++&pinctrl {
++	hdmi-rst-hog {
++		gpio-hog;
++		gpios = <RZG2L_GPIO(42, 0) GPIO_ACTIVE_HIGH>;
++		output-low;
++		line-name = "hdmi_rst";
++	};
++};
++
++&gt9271 {
++	status = "okay";
++	reset-gpios = <&pinctrl RZG2L_GPIO(43, 1) GPIO_ACTIVE_LOW>;
++};
+diff --git a/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-dsi-kd101wxfid045.dts b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-dsi-kd101wxfid045.dts
+new file mode 100644
+index 000000000000..6e0e8357fbc6
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-dsi-kd101wxfid045.dts
+@@ -0,0 +1,71 @@
++/*
++ * Copyright 2024 Vekatech
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ */
++
++/dts-v1/;
++/plugin/;
++
++#include <dt-bindings/pinctrl/rzg2l-pinctrl.h>
++#include <dt-bindings/gpio/gpio.h>
++
++&du {
++	status = "okay";
++};
++
++&dsi0 {
++	status = "okay";
++	ports {
++		port@1 {
++			dsi0_out: endpoint {
++				remote-endpoint = <&panel_in>;
++			};
++		};
++	};
++};
++
++&mipi_panel {
++	status = "okay";
++	compatible = "vekatech,vklcd-kd101wxfid045","fitipower,ek79202d";
++
++	reset-gpios = <&pinctrl RZG2L_GPIO(43, 3) GPIO_ACTIVE_LOW>;
++	lcd-model = "kd101wxfid045";
++	dsi-lanes = <4>;
++	video-mode = <2>;
++	port {
++		panel_in: endpoint {
++			remote-endpoint = <&dsi0_out>;
++		};
++	};
++};
++
++&gpt5 {
++	status = "okay";
++};
++
++&backlight {
++	status = "okay";
++};
++
++&pinctrl {
++	hdmi-rst-hog {
++		gpio-hog;
++		gpios = <RZG2L_GPIO(42, 0) GPIO_ACTIVE_HIGH>;
++		output-low;
++		line-name = "hdmi_rst";
++	};
++};
++
++&ft5626 {
++	status = "okay";
++	reset-gpios = <&pinctrl RZG2L_GPIO(43, 1) GPIO_ACTIVE_LOW>;
++};
+diff --git a/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-dsi-vklcd-ee0700.dts b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-dsi-vklcd-ee0700.dts
+new file mode 100644
+index 000000000000..94e1b22aff1d
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-dsi-vklcd-ee0700.dts
+@@ -0,0 +1,70 @@
++/*
++ * Copyright 2023 Vekatech
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ */
++
++/dts-v1/;
++/plugin/;
++
++#include <dt-bindings/pinctrl/rzg2l-pinctrl.h>
++#include <dt-bindings/gpio/gpio.h>
++
++&du {
++	status = "okay";
++};
++
++&dsi0 {
++	status = "okay";
++	ports {
++		port@1 {
++			dsi0_out: endpoint {
++				remote-endpoint = <&panel_in>;
++			};
++		};
++	};
++};
++
++&mipi_panel {
++	status = "okay";
++	compatible = "vekatech,vklcd07","fitipower,ek79007ad";
++
++	reset-gpios = <&pinctrl RZG2L_GPIO(43, 3) (GPIO_ACTIVE_LOW|GPIO_OPEN_DRAIN)>;
++	lcd-model = "vklcd07";
++	dsi-lanes = <4>;
++	port {
++		panel_in: endpoint {
++			remote-endpoint = <&dsi0_out>;
++		};
++	};
++};
++
++&gpt5 {
++	status = "okay";
++};
++
++&backlight {
++	status = "okay";
++};
++
++&pinctrl {
++	hdmi-rst-hog {
++		gpio-hog;
++		gpios = <RZG2L_GPIO(42, 0) GPIO_ACTIVE_HIGH>;
++		output-low;
++		line-name = "hdmi_rst";
++	};
++};
++
++&mxt1066t2 {
++	status = "okay";
++	reset-gpios = <&pinctrl RZG2L_GPIO(43, 1) GPIO_ACTIVE_LOW>;
++};
+diff --git a/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-dsi-vklcd07.dts b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-dsi-vklcd07.dts
+new file mode 100644
+index 000000000000..6444373d5f29
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-dsi-vklcd07.dts
+@@ -0,0 +1,65 @@
++/*
++ * Copyright 2023 Vekatech
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ */
++
++/dts-v1/;
++/plugin/;
++
++#include <dt-bindings/pinctrl/rzg2l-pinctrl.h>
++#include <dt-bindings/gpio/gpio.h>
++
++&du {
++	status = "okay";
++};
++
++&dsi0 {
++	status = "okay";
++	ports {
++		port@1 {
++			dsi0_out: endpoint {
++				remote-endpoint = <&panel_in>;
++			};
++		};
++	};
++};
++
++&mipi_panel {
++	status = "okay";
++	compatible = "vekatech,vklcd07","fitipower,ek79007ad";
++
++	reset-gpios = <&pinctrl RZG2L_GPIO(43, 1) GPIO_ACTIVE_LOW>;
++	lcd-model = "vklcd07";
++	dsi-lanes = <4>;
++	port {
++		panel_in: endpoint {
++			remote-endpoint = <&dsi0_out>;
++		};
++	};
++};
++
++&gpt5 {
++	status = "okay";
++};
++
++&backlight {
++	status = "okay";
++};
++
++&gt911 {
++	status = "okay";
++	touchscreen-swapped-x-y;
++	touchscreen-inverted-y;
++	touchscreen-size-y = <1024>;
++	touchscreen-size-x = <600>;
++	reset-gpios = <&pinctrl RZG2L_GPIO(43, 3) GPIO_ACTIVE_HIGH>;
++};
+diff --git a/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-exp-pwm0.dts b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-exp-pwm0.dts
+new file mode 100644
+index 000000000000..03773c570010
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-exp-pwm0.dts
+@@ -0,0 +1,32 @@
++/*
++ * Copyright 2023 Vekatech
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ */
++
++/dts-v1/;
++/plugin/;
++
++#include <dt-bindings/pinctrl/rzg2l-pinctrl.h>
++
++&gpt7 {
++	status = "okay";
++
++	pinctrl-0 = <&gpt7_pins>;
++	pinctrl-names = "default";
++	channel="channel_B";
++};
++
++&pinctrl {
++	gpt7_pins: gpt7 {
++		pinmux = <RZG2L_PORT_PINMUX(17, 1, 3)>; /* Channel B */
++	};
++};
+diff --git a/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-exp-pwm1.dts b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-exp-pwm1.dts
+new file mode 100644
+index 000000000000..bc4ba3f68e37
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-exp-pwm1.dts
+@@ -0,0 +1,34 @@
++/*
++ * Copyright 2023 Vekatech
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ */
++
++/dts-v1/;
++/plugin/;
++
++#include <dt-bindings/pinctrl/rzg2l-pinctrl.h>
++
++&mtu6 {
++	status = "okay";
++
++	pinctrl-0 = <&mtu6_pins>;
++	pinctrl-names = "default";
++	/* Enable PWM mode 1 out for MTIOC6A pins. */
++	pwm_mode1 = <6 1>;
++};
++
++&pinctrl {
++	mtu6_pins: mtu6 {
++		pinmux = <RZG2L_PORT_PINMUX(10, 0, 3)>; /* MTIOC6A */
++	};
++};
++
+diff --git a/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-exp-pwm2.dts b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-exp-pwm2.dts
+new file mode 100644
+index 000000000000..7de062e99845
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-exp-pwm2.dts
+@@ -0,0 +1,32 @@
++/*
++ * Copyright 2023 Vekatech
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ */
++
++/dts-v1/;
++/plugin/;
++
++#include <dt-bindings/pinctrl/rzg2l-pinctrl.h>
++
++&gpt4 {
++	status = "okay";
++
++	pinctrl-0 = <&gpt4_pins>;
++	pinctrl-names = "default";
++	channel="channel_B";
++};
++
++&pinctrl {
++	gpt4_pins: gpt4 {
++		pinmux = <RZG2L_PORT_PINMUX(15, 1, 3)>; /* Channel B */
++	};
++};
+diff --git a/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-exp-riic2.dts b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-exp-riic2.dts
+new file mode 100755
+index 000000000000..2ad950863fa8
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-exp-riic2.dts
+@@ -0,0 +1,34 @@
++/*
++ * Copyright 2023 Vekatech
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ */
++
++/dts-v1/;
++/plugin/;
++
++#include <dt-bindings/pinctrl/rzg2l-pinctrl.h>
++
++/* 40-pin extended GPIO, expanded into UART, SPI, I2C, PWM and other interfaces */
++
++&pinctrl {
++	i2c2_pins: i2c2 {
++		pinmux = <RZG2L_PORT_PINMUX(46, 0, 4)>, /* SDA */
++			 <RZG2L_PORT_PINMUX(46, 1, 4)>; /* SCL */
++	};
++};
++
++&i2c2 {
++	pinctrl-0 = <&i2c2_pins>;
++	pinctrl-names = "default";
++	clock-frequency = <400000>;
++	status = "okay";
++};
+diff --git a/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-exp-rspi1.dts b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-exp-rspi1.dts
+new file mode 100644
+index 000000000000..7a372ab2d3b1
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-exp-rspi1.dts
+@@ -0,0 +1,45 @@
++/*
++ * Copyright 2023 Vekatech
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ */
++
++/dts-v1/;
++/plugin/;
++
++#include <dt-bindings/pinctrl/rzg2l-pinctrl.h>
++
++/* 40-pin extended GPIO, expanded into UART, SPI, I2C, PWM and other interfaces */
++
++&pinctrl {
++	spi1_pins: spi1 {
++		pinmux = <RZG2L_PORT_PINMUX(44, 0, 1)>, /* CK */
++			 <RZG2L_PORT_PINMUX(44, 1, 1)>, /* MOSI */
++			 <RZG2L_PORT_PINMUX(44, 2, 1)>, /* MISO */
++			 <RZG2L_PORT_PINMUX(44, 3, 1)>; /* SSL */
++	};
++};
++
++&spi1 {
++	pinctrl-0 = <&spi1_pins>;
++	pinctrl-names = "default";
++	dmas = <&dmac 0x2e99>, <&dmac 0x2e9a>;
++	dma-names = "tx", "rx";
++	status = "okay";
++
++	#address-cells = <1>;
++	#size-cells = <0>;
++	spidev@0 {
++		compatible = "semtech,sx1301";
++		reg = <0>;
++		spi-max-frequency = <2000000>;
++	};
++};
+diff --git a/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-exp-scif2.dts b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-exp-scif2.dts
+new file mode 100644
+index 000000000000..30b87e2dc769
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-exp-scif2.dts
+@@ -0,0 +1,33 @@
++/*
++ * Copyright 2023 Vekatech
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ */
++
++/dts-v1/;
++/plugin/;
++
++#include <dt-bindings/pinctrl/rzg2l-pinctrl.h>
++
++/* 40-pin extended GPIO, expanded into UART, SPI, I2C, PWM and other interfaces */
++
++&pinctrl {
++	scif2_pins: scif2 {
++		pinmux = <RZG2L_PORT_PINMUX(48, 0, 1)>, /* TxD */
++			 <RZG2L_PORT_PINMUX(48, 1, 1)>; /* RxD */
++	};
++};
++
++&scif2 {
++	pinctrl-0 = <&scif2_pins>;
++	pinctrl-names = "default";
++	status = "okay";
++};
+diff --git a/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-exp-scif2_rts_cts.dts b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-exp-scif2_rts_cts.dts
+new file mode 100644
+index 000000000000..4a82256800af
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-exp-scif2_rts_cts.dts
+@@ -0,0 +1,36 @@
++/*
++ * Copyright 2023 Vekatech
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ */
++
++/dts-v1/;
++/plugin/;
++
++#include <dt-bindings/pinctrl/rzg2l-pinctrl.h>
++
++/* 40-pin extended GPIO, expanded into UART, SPI, I2C, PWM and other interfaces */
++
++&pinctrl {
++	scif2_pins: scif2 {
++		pinmux = <RZG2L_PORT_PINMUX(48, 0, 1)>, /* TxD */
++			 <RZG2L_PORT_PINMUX(48, 1, 1)>, /* RxD */
++ 			 <RZG2L_PORT_PINMUX(48, 3, 1)>, /* CTS# */
++			 <RZG2L_PORT_PINMUX(48, 4, 1)>; /* RTS# */
++	};
++};
++
++&scif2 {
++	pinctrl-0 = <&scif2_pins>;
++	pinctrl-names = "default";
++	uart-has-rtscts;
++	status = "okay";
++};
+diff --git a/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-sdhi0-emmc.dts b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-sdhi0-emmc.dts
+new file mode 100644
+index 000000000000..4fb3fe5606c4
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-sdhi0-emmc.dts
+@@ -0,0 +1,44 @@
++/*
++ * Copyright 2023 Vekatech
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ */
++
++/dts-v1/;
++/plugin/;
++
++#include <dt-bindings/pinctrl/rzg2l-pinctrl.h>
++#include <dt-bindings/gpio/gpio.h>
++
++&pinctrl {
++	sd0-dev-sel-hog {
++		gpio-hog;
++		gpios = <RZG2L_GPIO(41, 1) GPIO_ACTIVE_HIGH>;
++		output-high;
++		line-name = "sd0_dev_sel";
++	};
++};
++
++/* for eMMC */
++&sdhi0 {
++	pinctrl-0 = <&sdhi0_emmc_pins>;
++	pinctrl-1 = <&sdhi0_emmc_pins>;
++	pinctrl-names = "default", "state_uhs";
++
++	vmmc-supply = <&reg_3p3v>;
++	vqmmc-supply = <&reg_1p8v>;
++	bus-width = <8>;
++	mmc-hs200-1_8v;
++	non-removable;
++	fixed-emmc-driver-type = <1>;
++	status = "okay";
++};
++
+diff --git a/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-sdhi0-sdhi.dts b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-sdhi0-sdhi.dts
+new file mode 100644
+index 000000000000..6eb546412bbf
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-sdhi0-sdhi.dts
+@@ -0,0 +1,47 @@
++/*
++ * Copyright 2023 Vekatech
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ */
++
++/dts-v1/;
++/plugin/;
++
++#include <dt-bindings/pinctrl/rzg2l-pinctrl.h>
++#include <dt-bindings/gpio/gpio.h>
++
++&pinctrl {
++	sd0-dev-sel-hog {
++		gpio-hog;
++		gpios = <RZG2L_GPIO(41, 1) GPIO_ACTIVE_HIGH>;
++		output-high;
++		line-name = "sd0_dev_sel";
++	};
++};
++
++&vccq_sdhi0 {
++	gpios = <&pinctrl RZG2L_GPIO(32, 0) GPIO_ACTIVE_HIGH>;
++};
++
++/* for SD Card */
++&sdhi0 {
++	pinctrl-0 = <&sdhi0_pins>;
++	pinctrl-1 = <&sdhi0_pins_uhs>;
++	pinctrl-names = "default", "state_uhs";
++
++	vmmc-supply = <&reg_3p3v>;
++	vqmmc-supply = <&vccq_sdhi0>;
++	bus-width = <4>;
++	sd-uhs-sdr50;
++	sd-uhs-sdr104;
++	status = "okay";
++};
++
+diff --git a/arch/arm64/boot/dts/renesas/vkrzg2l.dts b/arch/arm64/boot/dts/renesas/vkrzg2l.dts
+new file mode 100644
+index 000000000000..219efd80499b
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/vkrzg2l.dts
+@@ -0,0 +1,889 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Device Tree Source for the Vekatech (VKRZG2L Dual Cortex-A55)
++ *
++ * Copyright (C) 2022 Vekatech.
++ */
++
++/dts-v1/;
++
++#include "r9a07g044l2.dtsi"
++#include <dt-bindings/gpio/gpio.h>
++#include <dt-bindings/pinctrl/rzg2l-pinctrl.h>
++#include <dt-bindings/input/input.h>
++
++
++/ {
++	model = "Vekatech,vkrzg2l";
++	compatible = "vekatech,vkrzg2l", "renesas,r9a07g044l2", "renesas,r9a07g044";
++
++	aliases {
++		ethernet0 = &eth0;
++		ethernet1 = &eth1;
++		serial0 = &scif0;
++		serial1 = &scif1;
++		serial2 = &scif2;
++		serial3 = &scif3;
++		i2c0 = &i2c0;
++		i2c1 = &i2c1;
++		i2c3 = &i2c3;
++		mmc0 = &sdhi0;
++	};
++
++	chosen {
++		bootargs = "ignore_loglevel";
++		stdout-path = "serial0:115200n8";
++	};
++
++	memory@48000000 {
++		device_type = "memory";
++		/* first 128MB is reserved for secure area. */
++		reg = <0x0 0x48000000 0x0 0x78000000>;
++	};
++
++	reserved-memory {
++		#address-cells = <2>;
++		#size-cells = <2>;
++		ranges;
++
++		global_cma: linux,cma@58000000 {
++			compatible = "shared-dma-pool";
++			linux,cma-default;
++			reusable;
++			reg = <0x0 0x58000000 0x0 0x10000000>;
++		};
++
++		mmp_reserved: linux,multimedia {
++			compatible = "shared-dma-pool";
++			reusable;
++			reg = <0x00000000 0x68000000 0x0 0x8000000>;
++		};
++	};
++
++	mmngr {
++		compatible = "renesas,mmngr";
++		memory-region = <&mmp_reserved>;
++	};
++
++	mmngrbuf {
++		compatible = "renesas,mmngrbuf";
++	};
++
++	vspm_if {
++		compatible = "renesas,vspm_if";
++	};
++
++	reg_5p0v: regulator0 {
++		compatible = "regulator-fixed";
++		regulator-name = "MAIN-5.0V";
++		regulator-min-microvolt = <5000000>;
++		regulator-max-microvolt = <5000000>;
++		regulator-boot-on;
++		regulator-always-on;
++	};
++
++	reg_1p8v: regulator1 {
++		compatible = "regulator-fixed";
++		regulator-name = "fixed-1.8V";
++		regulator-min-microvolt = <1800000>;
++		regulator-max-microvolt = <1800000>;
++		regulator-boot-on;
++		regulator-always-on;
++	};
++
++	reg_3p3v: regulator2 {
++		compatible = "regulator-fixed";
++		regulator-name = "fixed-3.3V";
++		regulator-min-microvolt = <3300000>;
++		regulator-max-microvolt = <3300000>;
++		regulator-boot-on;
++		regulator-always-on;
++	};
++	
++	reg_1p1v: regulator-vdd-core {
++		compatible = "regulator-fixed";
++		regulator-name = "fixed-1.1V";
++		regulator-min-microvolt = <1100000>;
++		regulator-max-microvolt = <1100000>;
++		regulator-boot-on;
++		regulator-always-on;
++	};
++
++	vccq_sdhi0: regulator-vccq-sdhi0 {
++		compatible = "regulator-gpio";
++		regulator-name = "SDHI0 VccQ";
++		regulator-min-microvolt = <1800000>;
++		regulator-max-microvolt = <3300000>;
++		gpios-states = <1>;
++		states = <3300000 1>, <1800000 0>;
++		regulator-boot-on;
++		regulator-always-on;
++	};
++
++	vbus0_5v: regulator-vbus0-usb {
++		compatible = "regulator-fixed";
++		regulator-name = "USB2_VBUS0";
++		regulator-min-microvolt = <5000000>;
++		regulator-max-microvolt = <5000000>;
++		regulator-always-on;
++	};
++
++	imx219_vana_2v8: 2p8v {
++		compatible = "regulator-fixed";
++		regulator-name = "camera_vana";
++		regulator-min-microvolt = <2800000>;
++		regulator-max-microvolt = <2800000>;
++		regulator-always-on;
++	};
++
++	imx219_vdig_1v8: 1p8v {
++		compatible = "regulator-fixed";
++		regulator-name = "camera_vdig";
++		regulator-min-microvolt = <1500000>;
++		regulator-max-microvolt = <1500000>;
++		regulator-always-on;
++	};
++
++	imx219_vddl_1v2: 1p2v {
++		compatible = "regulator-fixed";
++		regulator-name = "camera_vddl";
++		regulator-min-microvolt = <1200000>;
++		regulator-max-microvolt = <1200000>;
++		regulator-always-on;
++	};
++
++	audio_mclock: audio_mclock {
++		compatible = "fixed-clock";
++		#clock-cells = <0>;
++		clock-frequency = <11289600>;
++	};
++
++	clk_ext_camera: clk_ext_camera {
++		compatible = "fixed-clock";
++		#clock-cells = <0>;
++		clock-frequency = <24000000>;
++	};
++
++	leds {
++		compatible = "gpio-leds";
++		led_red {
++			gpios = <&pinctrl RZG2L_GPIO(8, 2) GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led_green {
++			gpios = <&pinctrl RZG2L_GPIO(17, 2) GPIO_ACTIVE_HIGH>;
++			linux,default-trigger = "heartbeat";
++			default-state = "on";
++		};
++
++		led_blue {
++			gpios = <&pinctrl RZG2L_GPIO(19, 1) GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		led_yellow {
++			gpios = <&pinctrl RZG2L_GPIO(15, 0) GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++
++		usb0_sel {
++			gpios = <&pinctrl RZG2L_GPIO(5, 2) GPIO_ACTIVE_HIGH>;
++			default-state = "off";
++		};
++	};
++
++	keys {
++		compatible = "gpio-keys";
++		user_key {
++			label = "SB2";
++			linux,code = <KEY_1>;
++			debounce-interval = <20>;
++			interrupt-parent = <&pinctrl>;
++			interrupts = <RZG2L_GPIO(39, 0) IRQ_TYPE_LEVEL_LOW>;
++		};
++	};
++
++	sound-da7212 {
++		compatible = "simple-audio-card";
++		simple-audio-card,name = "audio-da7212";
++		simple-audio-card,format = "i2s";
++		simple-audio-card,bitclock-master = <&cpu_dai>;
++		simple-audio-card,frame-master = <&cpu_dai>;
++
++		simple-audio-card,widgets =
++			"Microphone", "Microphone Jack",
++			"Headphone", "Headphone Jack";
++		simple-audio-card,routing =
++			"MIC1", "Microphone Jack",
++			"Microphone Jack", "Mic Bias 1",
++			"Headphone Jack", "HPL",
++			"Headphone Jack", "HPR";
++
++		cpu_dai: simple-audio-card,cpu {
++			sound-dai = <&ssi0>;
++		};
++
++		codec_dai: simple-audio-card,codec {
++			sound-dai = <&da7212>;
++			clocks = <&versa3 3>;
++		};
++	};
++
++	hdmi_con: hdmi_con {
++		compatible = "hdmi-connector";
++		label = "micro-HDMI";
++		type = "d";
++		status = "disabled";
++
++		ddc-i2c-bus = <&i2c1>;
++
++		hpd-gpios = <&pinctrl RZG2L_GPIO(13, 0) GPIO_ACTIVE_HIGH>;
++
++		port {
++			hdmi_con_in: endpoint {
++				remote-endpoint = <&hdmi_bridge_out>;
++			};
++		};
++	};
++
++	backlight: backlight {
++		compatible = "pwm-backlight";
++		pwms = <&gpt5 0 40000 0>;
++		brightness-levels = <0 8 32 64 96 128 160 192 224 255>;
++		default-brightness-level = <8>;
++		power-supply = <&reg_5p0v>;
++		status = "disabled";
++	};
++
++	x1_clk: x1-clock {
++		compatible = "fixed-clock";
++		#clock-cells = <0>;
++		clock-frequency = <24000000>;
++	};
++};
++
++&extal_clk {
++	clock-frequency = <24000000>;
++};
++
++&audio_clk1{
++	clock-frequency = <11289600>;
++};
++
++&audio_clk2{
++	clock-frequency = <12288000>;
++};
++
++&gpu {
++	mali-supply = <&reg_1p1v>;
++};
++
++&wdt0 {
++	status = "okay";
++	timeout-sec = <60>;
++};
++
++&wdt1 {
++	status = "okay";
++	timeout-sec = <60>;
++};
++
++&wdt2 {
++	status = "okay";
++	timeout-sec = <60>;
++};
++
++&ostm1 {
++	status = "okay";
++};
++
++&mtu3 {
++	status = "okay";
++};
++
++&scif0 {
++	pinctrl-0 = <&scif0_pins>;
++	pinctrl-names = "default";
++	status = "okay";
++};
++
++&scif1 {
++	pinctrl-0 = <&scif1_pins>;
++	pinctrl-names = "default";
++	status = "okay";
++};
++
++&scif3 {
++	pinctrl-0 = <&scif3_pins>;
++	pinctrl-names = "default";
++	status = "okay";
++};
++
++&ehci0 {
++	memory-region = <&global_cma>;
++	dr_mode = "otg";
++	status = "okay";
++};
++
++&ohci0 {
++	memory-region = <&global_cma>;
++	dr_mode = "otg";
++	status = "okay";
++};
++
++&ehci1 {
++	memory-region = <&global_cma>;
++	status = "okay";
++};
++
++&ohci1 {
++	memory-region = <&global_cma>;
++	status = "okay";
++};
++
++&hsusb {
++	dr_mode = "otg";
++	status = "okay";
++};
++
++&phyrst {
++	status = "okay";
++};
++
++&usb2_phy0 {
++	pinctrl-0 = <&usb0_pins>;
++	pinctrl-names = "default";
++
++	vbus-supply = <&vbus0_5v>;
++	status = "okay";
++};
++
++&usb2_phy1 {
++	pinctrl-0 = <&usb1_pins>;
++	pinctrl-names = "default";
++
++	vbus-supply = <&vbus0_5v>;
++	status = "okay";
++};
++
++&eth0 {
++	#address-cells = <1>;
++	#size-cells = <0>;
++	pinctrl-names = "default";
++	pinctrl-0 = <&eth0_pins>;
++	phy-handle = <&phy0>;
++	phy-mode = "rgmii-id";
++	status = "okay";
++
++	/* Realtek RTL8211F (0x001cc916) */
++	phy0: ethernet-phy@0 {
++		reg = <0>;
++		reset-assert-us = <15000>;
++		reset-deassert-us = <100000>;
++		reset-gpios = <&pinctrl RZG2L_GPIO(39, 2) GPIO_ACTIVE_LOW>;
++		interrupt-parent = <&pinctrl>;
++		interrupts = <RZG2L_GPIO(1, 0) IRQ_TYPE_LEVEL_LOW>;
++	};
++};
++
++&eth1 {
++	#address-cells = <1>;
++	#size-cells = <0>;
++	pinctrl-names = "default";
++	pinctrl-0 = <&eth1_pins>;
++	phy-handle = <&phy1>;
++	phy-mode = "rgmii-id";
++	status = "okay";
++
++	/* Realtek RTL8211F (0x001cc916) */
++	phy1: ethernet-phy@0 {
++		reg = <0>;
++		reset-assert-us = <15000>;
++		reset-deassert-us = <100000>;
++		reset-gpios = <&pinctrl RZG2L_GPIO(7, 0) GPIO_ACTIVE_LOW>;
++		interrupt-parent = <&pinctrl>;
++		interrupts = <RZG2L_GPIO(1, 1) IRQ_TYPE_LEVEL_LOW>;
++	};
++};
++
++&csi2 {
++	status = "disabled";
++	ports {
++		port {
++			csi2_in: endpoint {
++				clock-lanes = <0>;
++				data-lanes = <1 2>;
++				remote-endpoint = <&imx219_to_csi>;
++			};
++		};
++	};
++};
++
++&i2c0 {
++	pinctrl-0 = <&i2c0_pins>;
++	pinctrl-names = "default";
++
++	clock-frequency = <100000>;
++	status = "okay";
++
++	imx219: camera@10 {
++		compatible = "sony,imx219";
++		reg = <0x10>;
++		status = "disabled";
++
++		clock-names = "xclk";
++		clocks = <&clk_ext_camera>;
++		clock-frequency = <24000000>;
++
++		VANA-supply = <&imx219_vana_2v8>;
++		VDIG-supply = <&imx219_vdig_1v8>;
++		VDDL-supply = <&imx219_vddl_1v2>;
++		
++		reset-gpios = <&pinctrl RZG2L_GPIO(2, 0) GPIO_ACTIVE_HIGH>;
++
++		port {
++			imx219_to_csi: endpoint {
++				remote-endpoint = <&csi2_in>;
++				data-lanes = <1 2>;
++				clock-noncontinuous;
++				link-frequencies = /bits/ 64 <456000000>;
++			};
++		};
++	};
++};
++
++&i2c1 {
++	pinctrl-0 = <&i2c1_pins>;
++	pinctrl-names = "default";
++	clock-frequency = <100000>;
++	i2c-scl-falling-time-ns = <20>;
++	i2c-scl-rising-time-ns = <350>;
++	
++	status = "okay";
++
++	lt8912b: hdmi_bridge@48 {
++		compatible = "lontium,lt8912b";
++		reg = <0x48>;
++
++		status = "disabled";
++
++		reset-gpios = <&pinctrl RZG2L_GPIO(42, 0) GPIO_ACTIVE_LOW>;
++
++		ports {
++			#address-cells = <1>;
++			#size-cells = <0>;
++
++			port@1 {
++				reg = <1>;
++
++				hdmi_bridge_out: endpoint {
++					remote-endpoint = <&hdmi_con_in>;
++				};
++			};
++		};
++	};
++
++	gt911: gt911_ts@14 {
++		compatible = "goodix,gt911";
++		reg = <0x14>;
++
++		status = "disabled";
++
++		interrupt-parent = <&pinctrl>;
++		interrupts = <RZG2L_GPIO(2, 1) IRQ_TYPE_EDGE_FALLING>;
++		irq-gpios = <&pinctrl RZG2L_GPIO(2, 1) GPIO_ACTIVE_HIGH>;   /* DSI_TS_nINT */
++	};
++
++	mxt1066t2: mxt1066t2_ts@4a {
++		compatible = "atmel,maxtouch";
++		reg = <0x4a>;
++
++		status = "disabled";
++
++		interrupt-parent = <&pinctrl>;
++		interrupts = <RZG2L_GPIO(2, 1) IRQ_TYPE_EDGE_FALLING>;
++		irq-gpios = <&pinctrl RZG2L_GPIO(2, 1) GPIO_ACTIVE_HIGH>;   /* DSI_TS_nINT */
++	};
++
++	gt9271: gt9271_ts@5d {
++		compatible = "goodix,gt911";
++		reg = <0x5d>;
++
++		status = "disabled";
++
++		interrupt-parent = <&pinctrl>;
++		interrupts = <RZG2L_GPIO(2, 1) IRQ_TYPE_LEVEL_LOW>;
++		irq-gpios = <&pinctrl RZG2L_GPIO(2, 1) GPIO_ACTIVE_HIGH>;   /* DSI_TS_nINT */
++	};
++
++	ft5626: ft5626_ts@38 {
++		compatible = "edt,edt-ft5506";
++		reg = <0x38>;
++
++		status = "disabled";
++
++		interrupt-parent = <&pinctrl>;
++		interrupts = <RZG2L_GPIO(2, 1) IRQ_TYPE_LEVEL_LOW>;
++		irq-gpios = <&pinctrl RZG2L_GPIO(2, 1) GPIO_ACTIVE_HIGH>;   /* DSI_TS_nINT */
++		touchscreen-size-x = <1280>;
++		touchscreen-size-y = <800>;
++		vcc-supply = <&reg_3p3v>;
++	};
++};
++
++&i2c3 {
++	pinctrl-0 = <&i2c3_pins>;
++	pinctrl-names = "default";
++	clock-frequency = <400000>;
++	status = "okay";
++
++	versa3: versa3@68 {
++		compatible = "renesas,5p35023";
++		reg = <0x68>;
++		#clock-cells = <1>;
++		clocks = <&x1_clk>;
++		clock-names = "x1";
++		assigned-clocks = <&versa3 0>,	/* DIFF2 Audio CLK2 */
++				   		  <&versa3 1>,	/* DIFF1 ETH1/2 CLK */
++						  <&versa3 2>,	/* SE3 HDMI CLK */
++					   	  <&versa3 3>,	/* SE2 Audio Master CLK */
++					   	  <&versa3 4>,	/* SE1 Audio CLK1 */
++					   	  <&versa3 5>;	/* REF RZ EXT */
++		assigned-clock-rates =	<12288000>, <25000000>,
++		                        <25000000>, <12288000>,
++		                        <11289600>, <24000000>;
++		clock-divider-read-only = <1>, <1>, <1>, <1>, <1>;
++		clock-flags = <2176>, <2176>, <2176>, <2052>, <2176>, <2048>;
++	};
++
++	pmic: raa215300@12 {
++		compatible = "renesas,raa215300";
++		reg = <0x12>;
++
++		rtc-enable;
++	};
++
++	rtc: isl1208@6f {
++		compatible = "isil,isl1208";
++		reg = <0x6f>;
++
++		external-oscillator;
++	};
++
++	da7212: codec@1a {
++		compatible = "dlg,da7212";
++		#sound-dai-cells = <0>;
++		reg = <0x1a>;
++		dlg,micbias1-lvl = <2500>;
++		dlg,micbias2-lvl = <2500>;
++		VDDA-supply = <&reg_1p8v>;
++		VDDIO-supply = <&reg_3p3v>;
++		VDDMIC-supply = <&reg_3p3v>;
++		clocks = <&audio_mclock>;
++		clock-names = "mclk";
++	};
++};
++
++&ssi0 {
++	pinctrl-0 = <&ssi0_pins>;
++	pinctrl-names = "default";
++	status = "okay";
++};
++
++&poegd {
++	status = "okay";
++};
++
++&gpt5 {
++	pinctrl-0 = <&gpt5_pins>;
++	pinctrl-names = "default";
++	channel="channel_A";
++	poeg = <&poegd>;
++	status = "disabled";
++};
++
++&dsi0 {
++	status = "disabled";
++	#address-cells = <1>;
++	#size-cells = <0>;
++
++	mipi_panel: panel@0 {
++		power-supply = <&reg_5p0v>;
++		reg = <0>;
++		backlight = <&backlight>;
++		status = "disabled";
++	};
++};
++
++&adc {
++	pinctrl-0 = <&adc_pins>;
++	pinctrl-names = "default";
++	status = "okay";
++
++	/delete-node/ channel@6;
++	/delete-node/ channel@7;
++};
++
++&canfd {
++	pinctrl-0 = <&can0_pins &can1_pins>;
++	pinctrl-names = "default";
++	status = "okay";
++	channel0 {
++		renesas,channel = <0>;
++		status = "okay";
++	};
++	channel1 {
++		renesas,channel = <1>;
++		status = "okay";
++	};
++};
++
++&sbc {
++	status = "okay";
++
++	pinctrl-0 = <&qspi0_pins>;
++	pinctrl-names = "default";
++
++	flash@0 {
++		status = "okay";
++
++		compatible = "mxicy,mx25u25645g", "jedec,spi-nor";
++		spi-max-frequency = <50000000>;
++		reg = <0>;
++		spi-rx-bus-width = <4>;
++		spi-tx-bus-width = <4>;
++		m25p,fast-read;
++
++		partitions {
++			compatible = "fixed-partitions";
++			#address-cells = <1>;
++			#size-cells = <1>;
++
++			partition@000000 {
++				label = "bl2";
++				reg = <0x00000000 0x0001D200>;
++				read-only;
++			};
++			partition@01D200 {
++				label = "fip";
++				reg = <0x0001D200 0x001C2E00>;
++				read-only;
++			};
++			partition@1E0000 {
++				label = "env";
++				reg = <0x001E0000 0x00020000>;
++				read-only;
++			};
++			partition@200000 {
++				label = "qspi-area";
++				reg = <0x00200000 0x01E00000>;
++			};
++		};
++	};
++};
++
++
++&pinctrl {
++	pinctrl-0 = <&sound_clk_pins>;
++	pinctrl-names = "default";
++
++	sound_clk_pins: sound_clk {
++		pins = "AUDIO_CLK1", "AUDIO_CLK2";
++		input-enable;
++	};
++
++	adc_pins: adc {
++		pinmux = <RZG2L_PORT_PINMUX(9, 0, 2)>; /* ADC_TRG */
++	};
++
++	scif0_pins: scif0 {
++		pinmux = <RZG2L_PORT_PINMUX(38, 0, 1)>,	/* TxD */
++			 <RZG2L_PORT_PINMUX(38, 1, 1)>;	/* RxD */
++	};
++
++	scif1_pins: scif1 {
++		pinmux = <RZG2L_PORT_PINMUX(40, 0, 1)>, /* TxD */
++			 <RZG2L_PORT_PINMUX(40, 1, 1)>; /* RxD */
++	};
++
++	scif3_pins: scif3 {
++		pinmux = <RZG2L_PORT_PINMUX(0, 0, 5)>, /* TxD */
++			 <RZG2L_PORT_PINMUX(0, 1, 5)>; /* RxD */
++	};
++
++
++	i2c0_pins: i2c0 {
++		pins = "RIIC0_SDA", "RIIC0_SCL";
++		input-enable;
++	};
++
++	i2c1_pins: i2c1 {
++		pins = "RIIC1_SDA", "RIIC1_SCL";
++		input-enable;
++	};
++
++	i2c3_pins: i2c3 {
++		pinmux = <RZG2L_PORT_PINMUX(18, 0, 3)>, /* SDA */
++			 	 <RZG2L_PORT_PINMUX(18, 1, 3)>; /* SCL */
++	};
++
++	eth0_pins: eth0 {
++		pinmux = <RZG2L_PORT_PINMUX(28, 1, 1)>, /* ET0_LINKSTA */
++				 <RZG2L_PORT_PINMUX(27, 1, 1)>, /* ET0_MDC */
++				 <RZG2L_PORT_PINMUX(28, 0, 1)>, /* ET0_MDIO */
++				 <RZG2L_PORT_PINMUX(20, 0, 1)>, /* ET0_TXC */
++				 <RZG2L_PORT_PINMUX(20, 1, 1)>, /* ET0_TX_CTL */
++				 <RZG2L_PORT_PINMUX(20, 2, 1)>, /* ET0_TXD0 */
++				 <RZG2L_PORT_PINMUX(21, 0, 1)>, /* ET0_TXD1 */
++				 <RZG2L_PORT_PINMUX(21, 1, 1)>, /* ET0_TXD2 */
++				 <RZG2L_PORT_PINMUX(22, 0, 1)>, /* ET0_TXD3 */
++				 <RZG2L_PORT_PINMUX(24, 0, 1)>, /* ET0_RXC */
++				 <RZG2L_PORT_PINMUX(24, 1, 1)>, /* ET0_RX_CTL */
++				 <RZG2L_PORT_PINMUX(25, 0, 1)>, /* ET0_RXD0 */
++				 <RZG2L_PORT_PINMUX(25, 1, 1)>, /* ET0_RXD1 */
++				 <RZG2L_PORT_PINMUX(26, 0, 1)>, /* ET0_RXD2 */
++				 <RZG2L_PORT_PINMUX(26, 1, 1)>; /* ET0_RXD3 */
++	};
++
++	eth1_pins: eth1 {
++		pinmux = <RZG2L_PORT_PINMUX(37, 2, 1)>, /* ET1_LINKSTA */
++				 <RZG2L_PORT_PINMUX(37, 0, 1)>, /* ET1_MDC */
++				 <RZG2L_PORT_PINMUX(37, 1, 1)>, /* ET1_MDIO */
++				 <RZG2L_PORT_PINMUX(29, 0, 1)>, /* ET1_TXC */
++				 <RZG2L_PORT_PINMUX(29, 1, 1)>, /* ET1_TX_CTL */
++				 <RZG2L_PORT_PINMUX(30, 0, 1)>, /* ET1_TXD0 */
++				 <RZG2L_PORT_PINMUX(30, 1, 1)>, /* ET1_TXD1 */
++				 <RZG2L_PORT_PINMUX(31, 0, 1)>, /* ET1_TXD2 */
++				 <RZG2L_PORT_PINMUX(31, 1, 1)>, /* ET1_TXD3 */
++				 <RZG2L_PORT_PINMUX(33, 1, 1)>, /* ET1_RXC */
++				 <RZG2L_PORT_PINMUX(34, 0, 1)>, /* ET1_RX_CTL */
++				 <RZG2L_PORT_PINMUX(34, 1, 1)>, /* ET1_RXD0 */
++				 <RZG2L_PORT_PINMUX(35, 0, 1)>, /* ET1_RXD1 */
++				 <RZG2L_PORT_PINMUX(35, 1, 1)>, /* ET1_RXD2 */
++				 <RZG2L_PORT_PINMUX(36, 0, 1)>; /* ET1_RXD3 */
++	};
++
++	gpio-sd0-pwr-en-hog {
++		gpio-hog;
++		gpios = <RZG2L_GPIO(19, 0) GPIO_ACTIVE_HIGH>;
++		output-high;
++		line-name = "gpio_sd0_pwr_en";
++	};
++
++	usb0_pins: usb0 {
++		pinmux = <RZG2L_PORT_PINMUX(4, 0, 1)>, /* VBUS */
++			 <RZG2L_PORT_PINMUX(5, 0, 1)>; /* OVC */
++	};
++
++	usb1_pins: usb1 {
++		pinmux = <RZG2L_PORT_PINMUX(8, 0, 2)>, /* VBUS */
++			 <RZG2L_PORT_PINMUX(8, 1, 2)>; /* OVC */
++	};
++
++	ssi0_pins: ssi0 {
++		pinmux = <RZG2L_PORT_PINMUX(45, 0, 1)>, /* BCK */
++			 <RZG2L_PORT_PINMUX(45, 1, 1)>, /* RCK */
++			 <RZG2L_PORT_PINMUX(45, 2, 1)>, /* TXD */
++			 <RZG2L_PORT_PINMUX(45, 3, 1)>; /* RXD */
++	};
++
++	gpt5_pins: gpt5 {
++		pinmux = <RZG2L_PORT_PINMUX(43, 2, 2)>; /* Channel A */
++	};
++
++	can0_stb {
++		gpio-hog;
++		gpios = <RZG2L_GPIO(11, 1) GPIO_ACTIVE_LOW>;
++		output-high;
++		line-name = "can0_stb";
++	};
++
++	can0_pins: can0 {
++		pinmux = <RZG2L_PORT_PINMUX(10, 1, 2)>, /* TX */
++			 <RZG2L_PORT_PINMUX(11, 0, 2)>; /* RX */
++	};
++
++	can1_stb {
++		gpio-hog;
++		gpios = <RZG2L_GPIO(7, 1) GPIO_ACTIVE_LOW>;
++		output-high;
++		line-name = "can1_stb";
++	};
++
++	can1_pins: can1 {
++		pinmux = <RZG2L_PORT_PINMUX(12, 1, 2)>, /* TX */
++			 <RZG2L_PORT_PINMUX(22, 1, 3)>; /* RX */
++	};
++
++	/*
++	 * SD0 device selection is XOR between GPIO_SD0_DEV_SEL and SW1[3]
++	 * The below switch logic can be used to select the device between
++	 * eMMC and microSD, after setting GPIO_SD0_DEV_SEL to high in DT.
++	 * SW1[3] should be at position 2/OFF to enable xx GB eMMC
++	 * SW1[3] should be at position 3/ON to enable uSD card CN11
++	 */
++
++	sdhi0_emmc_pins: sd0emmc {
++		sd0_emmc_data {
++			pins = "SD0_DATA0", "SD0_DATA1", "SD0_DATA2", "SD0_DATA3",
++			       "SD0_DATA4", "SD0_DATA5", "SD0_DATA6", "SD0_DATA7";
++			power-source = <1800>;
++		};
++
++		sd0_emmc_ctrl {
++			pins = "SD0_CLK", "SD0_CMD";
++			power-source = <1800>;
++		};
++
++		sd0_emmc_rst {
++			pins = "SD0_RST#";
++			power-source = <1800>;
++		};
++	};
++
++	sdhi0_pins: sd0 {
++		sd0_data {
++			pins = "SD0_DATA0", "SD0_DATA1", "SD0_DATA2", "SD0_DATA3";
++			power-source = <3300>;
++		};
++
++		sd0_ctrl {
++			pins = "SD0_CLK", "SD0_CMD";
++			power-source = <3300>;
++		};
++
++		sd0_mux {
++			pinmux = <RZG2L_PORT_PINMUX(47, 0, 2)>; /* SD0_CD */
++		};
++	};
++
++	sdhi0_pins_uhs: sd0_uhs {
++		sd0_data_uhs {
++			pins = "SD0_DATA0", "SD0_DATA1", "SD0_DATA2", "SD0_DATA3";
++			power-source = <1800>;
++		};
++
++		sd0_ctrl_uhs {
++			pins = "SD0_CLK", "SD0_CMD";
++			power-source = <1800>;
++		};
++
++		sd0_mux_uhs {
++			pinmux = <RZG2L_PORT_PINMUX(47, 0, 2)>; /* SD0_CD */
++		};
++	};
++
++	qspi0_pins: qspi0 {
++		qspi0-data {
++			pins = "QSPI0_IO0", "QSPI0_IO1", "QSPI0_IO2", "QSPI0_IO3";
++			power-source = <1800>;
++		};
++
++		qspi0-ctrl {
++			pins = "QSPI0_SPCLK", "QSPI0_SSL", "QSPI_RESET#";
++			power-source = <1800>;
++		};
++	};
++};
++
+-- 
+2.34.1
+

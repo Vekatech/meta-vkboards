@@ -1,0 +1,891 @@
+From 69d1f4c5a1dee4d220714491ae9242c5e68a3b31 Mon Sep 17 00:00:00 2001
+From: dtodoroff <d.todorov@vekatech.com>
+Date: Mon, 25 Nov 2024 11:07:40 +0200
+Subject: [PATCH 13/20] add support for vkrzg2ul and its overlays
+
+
+diff --git a/arch/arm64/boot/dts/renesas/overlays-vkrzg2ul/Makefile b/arch/arm64/boot/dts/renesas/overlays-vkrzg2ul/Makefile
+new file mode 100644
+index 000000000000..579bbd7978fe
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/overlays-vkrzg2ul/Makefile
+@@ -0,0 +1,8 @@
++# SPDX-License-Identifier: GPL-2.0
++
++# required for overlay support
++DTC_FLAGS += -@
++
++dtb-y += vkrz-audio.dtbo
++dtb-y += vkrz-cm33.dtbo
++dtb-y += vkrz-udma.dtbo
+diff --git a/arch/arm64/boot/dts/renesas/overlays-vkrzg2ul/vkrz-audio.dts b/arch/arm64/boot/dts/renesas/overlays-vkrzg2ul/vkrz-audio.dts
+new file mode 100644
+index 000000000000..1529ed74e84e
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/overlays-vkrzg2ul/vkrz-audio.dts
+@@ -0,0 +1,45 @@
++/*
++ * Copyright 2023 Vekatech
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ */
++
++#include <dt-bindings/interrupt-controller/arm-gic.h>
++#include <dt-bindings/pinctrl/rzg2l-pinctrl.h>
++#include <dt-bindings/gpio/gpio.h>
++
++/dts-v1/;
++/plugin/;
++
++
++&audio_codec {
++	status = "okay";
++};
++
++&ssi0 {
++	pinctrl-0 = <&ssi0_pins>;
++	pinctrl-names = "default";
++	status = "okay";
++};
++
++&da7212 {
++	status = "okay";
++};
++
++&pinctrl {
++	ssi0_pins: ssi0 {
++		pinmux = <RZG2L_PORT_PINMUX(11, 0, 1)>, /* BCK */
++			 <RZG2L_PORT_PINMUX(11, 1, 1)>, /* RCK */
++			 <RZG2L_PORT_PINMUX(11, 2, 1)>, /* TXD */
++			 <RZG2L_PORT_PINMUX(11, 3, 1)>; /* RXD */
++	};
++};
++
+diff --git a/arch/arm64/boot/dts/renesas/overlays-vkrzg2ul/vkrz-cm33.dts b/arch/arm64/boot/dts/renesas/overlays-vkrzg2ul/vkrz-cm33.dts
+new file mode 100755
+index 000000000000..434d37ead715
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/overlays-vkrzg2ul/vkrz-cm33.dts
+@@ -0,0 +1,75 @@
++/*
++ * Copyright 2024 Vekatech
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ */
++
++/dts-v1/;
++/plugin/;
++
++#include <dt-bindings/interrupt-controller/arm-gic.h>
++
++
++/ {
++	compatible = "vekatech,vkrzg2ul", "renesas,r9a07g043";
++	fragment@2 {
++		target-path = "/";
++		__overlay__ {
++			#address-cells = <2>;
++			#size-cells = <2>;
++
++			vring-ctl0@43000000 {
++				compatible = "vring_uio";
++				reg = <0x0 0x43000000 0x0 0x100000>;
++				no-map;
++			};
++
++			vring-ctl1@43100000 {
++				compatible = "vring_uio";
++				reg = <0x0 0x43100000 0x0 0x100000>;
++				no-map;
++			};
++
++			vring-shm0@43200000 {
++				compatible = "shm_uio";
++				reg = <0x0 0x43200000 0x0 0x300000>;
++				no-map;
++			};
++
++			vring-shm1@43500000 {
++				compatible = "shm_uio";
++				reg = <0x0 0x43500000 0x0 0x300000>;
++				no-map;
++			};
++
++			rsctbl@42f00000 {
++				compatible = "shm_uio";
++				reg = <0x0 0x42f00000 0x0 0x1000>;
++				no-map;
++			};
++
++			mhu-shm@42f01000 {
++				compatible = "shm_uio";
++				reg = <0x0 0x42f01000 0x0 0x1000>;
++				no-map;
++			};
++
++			mbox-uio@10400000 {
++				compatible = "mbox_uio";
++				reg = <0x0 0x10400000 0x0 0x1000>;
++				interrupt-parent = <&gic>;
++				interrupts = <GIC_SPI 75 IRQ_TYPE_LEVEL_HIGH>;
++				status = "okay";
++			};
++		};
++	};
++};
++
+diff --git a/arch/arm64/boot/dts/renesas/overlays-vkrzg2ul/vkrz-udma.dts b/arch/arm64/boot/dts/renesas/overlays-vkrzg2ul/vkrz-udma.dts
+new file mode 100644
+index 000000000000..93a4233d764c
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/overlays-vkrzg2ul/vkrz-udma.dts
+@@ -0,0 +1,41 @@
++/*
++ * Copyright 2024 Vekatech
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ */
++
++/dts-v1/;
++/plugin/;
++
++#include <dt-bindings/interrupt-controller/arm-gic.h>
++
++
++/ {
++	compatible = "vekatech,vkrzg2ul", "renesas,r9a07g043";
++
++	fragment@0 {
++		target-path = "/";
++		__overlay__ {
++			#address-cells = <2>;
++			#size-cells = <2>;
++
++			udmabuf@0 {
++				compatible = "ikwzm,u-dma-buf";
++				device-name = "udmabuf0";
++				minor-number = <0>;
++				size = <0x4000000>; /* 64MiB */
++				dma-coherent;
++			};
++		};
++	};
++};
++
++
+diff --git a/arch/arm64/boot/dts/renesas/vkrzg2ul.dts b/arch/arm64/boot/dts/renesas/vkrzg2ul.dts
+new file mode 100644
+index 000000000000..b66c69393e8a
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/vkrzg2ul.dts
+@@ -0,0 +1,683 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Device Tree Source for the Vekatech (VKRZG2UL Cortex-A55)
++ *
++ * Copyright (C) 2024 Vekatech.
++ */
++
++/dts-v1/;
++
++#include "r9a07g043.dtsi"
++#include <dt-bindings/gpio/gpio.h>
++#include <dt-bindings/pinctrl/rzg2l-pinctrl.h>
++#include <dt-bindings/input/input.h>
++
++
++/ {
++	model = "Vekatech VK-RZ/G2UL board based on r9a07g043u11";
++	compatible = "vekatech,vkrzg2ul", "renesas,r9a07g043u11", "renesas,r9a07g043";
++
++	aliases {
++		ethernet0 = &eth0;
++		ethernet1 = &eth1;
++		serial0 = &scif0;
++		serial1 = &scif1;
++		serial2 = &scif2;
++		serial3 = &scif3;
++		i2c0 = &i2c0;
++		i2c1 = &i2c1;
++		i2c3 = &i2c3;
++		mmc0 = &sdhi0;
++	};
++
++	chosen {
++		bootargs = "ignore_loglevel";
++		stdout-path = "serial0:115200n8";
++	};
++
++	memory@48000000 {
++		device_type = "memory";
++		/* first 128MB is reserved for secure area. */
++		reg = <0x0 0x48000000 0x0 0x38000000>;
++	};
++
++	reserved-memory {
++		#address-cells = <2>;
++		#size-cells = <2>;
++		ranges;
++
++		global_cma: linux,cma@58000000 {
++			compatible = "shared-dma-pool";
++			linux,cma-default;
++			reusable;
++			reg = <0x0 0x58000000 0x0 0x10000000>;
++		};
++
++		mmp_reserved: linux,multimedia {
++			compatible = "shared-dma-pool";
++			reusable;
++			reg = <0x00000000 0x68000000 0x0 0x8000000>;
++		};
++	};
++
++	mmngr {
++		compatible = "renesas,mmngr";
++		memory-region = <&mmp_reserved>;
++	};
++
++	mmngrbuf {
++		compatible = "renesas,mmngrbuf";
++	};
++
++	vspm_if {
++		compatible = "renesas,vspm_if";
++	};
++
++	reg_5p0v: regulator0 {
++		compatible = "regulator-fixed";
++		regulator-name = "MAIN-5.0V";
++		regulator-min-microvolt = <5000000>;
++		regulator-max-microvolt = <5000000>;
++		regulator-boot-on;
++		regulator-always-on;
++	};
++
++	reg_1p8v: regulator1 {
++		compatible = "regulator-fixed";
++		regulator-name = "fixed-1.8V";
++		regulator-min-microvolt = <1800000>;
++		regulator-max-microvolt = <1800000>;
++		regulator-boot-on;
++		regulator-always-on;
++	};
++
++	reg_3p3v: regulator2 {
++		compatible = "regulator-fixed";
++		regulator-name = "fixed-3.3V";
++		regulator-min-microvolt = <3300000>;
++		regulator-max-microvolt = <3300000>;
++		regulator-boot-on;
++		regulator-always-on;
++	};
++	
++	reg_1p1v: regulator-vdd-core {
++		compatible = "regulator-fixed";
++		regulator-name = "fixed-1.1V";
++		regulator-min-microvolt = <1100000>;
++		regulator-max-microvolt = <1100000>;
++		regulator-boot-on;
++		regulator-always-on;
++	};
++
++	vccq_sdhi0: regulator-vccq-sdhi0 {
++		compatible = "regulator-gpio";
++		regulator-name = "SDHI0 VccQ";
++		regulator-min-microvolt = <1800000>;
++		regulator-max-microvolt = <3300000>;
++		gpios-states = <1>;
++		states = <3300000 1>, <1800000 0>;
++		regulator-boot-on;
++		regulator-always-on;
++	};
++
++	vbus0_5v: regulator-vbus0-usb {
++		compatible = "regulator-fixed";
++		regulator-name = "USB2_VBUS0";
++		regulator-min-microvolt = <5000000>;
++		regulator-max-microvolt = <5000000>;
++		regulator-always-on;
++	};
++
++	audio_mclock: audio_mclock {
++		compatible = "fixed-clock";
++		#clock-cells = <0>;
++		clock-frequency = <11289600>;
++	};
++
++	leds {
++		compatible = "gpio-leds";
++		led_red {
++			gpios = <&pinctrl RZG2L_GPIO(17, 2) GPIO_ACTIVE_HIGH>;
++			linux,default-trigger = "heartbeat";
++			default-state = "on";
++		};
++	};
++
++	keys {
++		compatible = "gpio-keys";
++		user_key {
++			label = "SB1";
++			linux,code = <KEY_1>;
++			debounce-interval = <20>;
++			interrupt-parent = <&pinctrl>;
++			interrupts = <RZG2L_GPIO(18, 3) IRQ_TYPE_LEVEL_LOW>;
++		};
++	};
++
++	sound-da7212 {
++		compatible = "simple-audio-card";
++		simple-audio-card,name = "audio-da7212";
++		simple-audio-card,format = "i2s";
++		simple-audio-card,bitclock-master = <&cpu_dai>;
++		simple-audio-card,frame-master = <&cpu_dai>;
++
++		simple-audio-card,widgets =
++			"Microphone", "Microphone Jack",
++			"Headphone", "Headphone Jack";
++		simple-audio-card,routing =
++			"MIC1", "Microphone Jack",
++			"Microphone Jack", "Mic Bias 1",
++			"Headphone Jack", "HPL",
++			"Headphone Jack", "HPR";
++
++		cpu_dai: simple-audio-card,cpu {
++			sound-dai = <&ssi0>;
++		};
++
++		codec_dai: simple-audio-card,codec {
++			sound-dai = <&da7212>;
++			clocks = <&versa3 3>;
++		};
++	};
++
++
++	vccq_sdhi1: regulator-vccq-sdhi1 {
++		compatible = "regulator-gpio";
++
++		regulator-name = "SDHI1 VccQ";
++		regulator-min-microvolt = <1800000>;
++		regulator-max-microvolt = <3300000>;
++
++		gpios = <&pinctrl RZG2L_GPIO( 8, 3) GPIO_ACTIVE_HIGH>;
++
++		gpios-states = <1>;
++		states = <3300000 1
++			  1800000 0>;
++	};
++
++	x1_clk: x1-clock {
++		compatible = "fixed-clock";
++		#clock-cells = <0>;
++		clock-frequency = <24000000>;
++	};
++};
++
++&extal_clk {
++	clock-frequency = <24000000>;
++};
++
++&audio_clk1{
++	clock-frequency = <11289600>;
++};
++
++&audio_clk2{
++	clock-frequency = <12288000>;
++};
++
++&wdt0 {
++	status = "okay";
++	timeout-sec = <60>;
++};
++
++&wdt2 {
++	status = "okay";
++	timeout-sec = <60>;
++};
++
++&ostm1 {
++	status = "okay";
++};
++
++&mtu3 {
++	status = "okay";
++};
++
++&scif0 {
++	pinctrl-0 = <&scif0_pins>;
++	pinctrl-names = "default";
++	status = "okay";
++};
++
++
++/* for eMMC */
++&sdhi0 {
++	pinctrl-0 = <&sdhi0_emmc_pins>;
++	pinctrl-1 = <&sdhi0_emmc_pins>;
++	pinctrl-names = "default", "state_uhs";
++
++	vmmc-supply = <&reg_3p3v>;
++	vqmmc-supply = <&reg_1p8v>;
++	bus-width = <8>;
++	mmc-hs200-1_8v;
++	non-removable;
++	fixed-emmc-driver-type = <1>;
++	status = "okay";
++};
++
++/* for SD Card */
++&sdhi1 {
++	pinctrl-0 = <&sdhi1_pins>;
++	pinctrl-1 = <&sdhi1_pins_uhs>;
++	pinctrl-names = "default", "state_uhs";
++
++	vmmc-supply = <&reg_3p3v>;
++	vqmmc-supply = <&vccq_sdhi1>;
++	bus-width = <4>;
++	sd-uhs-sdr50;
++	sd-uhs-sdr104;
++	status = "okay";
++};
++
++&scif2 {
++	pinctrl-0 = <&scif2_pins>;
++	pinctrl-names = "default";
++
++	rs485-sw-rts;
++	gpios = <&pinctrl RZG2L_GPIO( 5, 4) GPIO_ACTIVE_LOW>;
++	status = "okay";
++};
++
++&ehci0 {
++	memory-region = <&global_cma>;
++	dr_mode = "otg";
++	status = "okay";
++};
++
++&ohci0 {
++	memory-region = <&global_cma>;
++	dr_mode = "otg";
++	status = "okay";
++};
++
++&ehci1 {
++	memory-region = <&global_cma>;
++	status = "okay";
++};
++
++&ohci1 {
++	memory-region = <&global_cma>;
++	status = "okay";
++};
++
++&hsusb {
++	dr_mode = "otg";
++	status = "okay";
++};
++
++&phyrst {
++	status = "okay";
++};
++
++&usb2_phy0 {
++	pinctrl-0 = <&usb0_pins>;
++	pinctrl-names = "default";
++
++	vbus-supply = <&vbus0_5v>;
++	status = "okay";
++};
++
++&usb2_phy1 {
++	pinctrl-0 = <&usb1_pins>;
++	pinctrl-names = "default";
++
++	vbus-supply = <&vbus0_5v>;
++	status = "okay";
++};
++
++&eth0 {
++	#address-cells = <1>;
++	#size-cells = <0>;
++	pinctrl-names = "default";
++	pinctrl-0 = <&eth0_pins>;
++	phy-handle = <&phy0>;
++	phy-mode = "rgmii-id";
++	status = "okay";
++
++	/* Realtek RTL8211F (0x001cc916) */
++	phy0: ethernet-phy@1 {
++		reg = <1>;
++		reset-assert-us = <15000>;
++		reset-deassert-us = <100000>;
++		reset-gpios = <&pinctrl RZG2L_GPIO(4, 2) GPIO_ACTIVE_LOW>;
++		interrupt-parent = <&pinctrl>;
++		interrupts = <RZG2L_GPIO(5, 1) IRQ_TYPE_LEVEL_LOW>;
++	};
++};
++
++&eth1 {
++	#address-cells = <1>;
++	#size-cells = <0>;
++	pinctrl-names = "default";
++	pinctrl-0 = <&eth1_pins>;
++	phy-handle = <&phy1>;
++	phy-mode = "rgmii-id";
++	status = "okay";
++
++	/* Realtek RTL8211F (0x001cc916) */
++	phy1: ethernet-phy@1 {
++		reg = <1>;
++		reset-assert-us = <15000>;
++		reset-deassert-us = <100000>;
++		reset-gpios = <&pinctrl RZG2L_GPIO(10, 1) (GPIO_ACTIVE_LOW|GPIO_OPEN_DRAIN)>;
++		interrupt-parent = <&pinctrl>;
++		interrupts = <RZG2L_GPIO(14, 2) IRQ_TYPE_LEVEL_LOW>;
++	};
++};
++
++&i2c0 {
++	pinctrl-0 = <&i2c0_pins>;
++	pinctrl-names = "default";
++
++	clock-frequency = <400000>;
++	status = "okay";
++
++	pmic: raa215300@12 {
++		compatible = "renesas,raa215300";
++		reg = <0x12>;
++
++		rtc-enable;
++	};
++
++	da7212: codec@1a {
++		compatible = "dlg,da7212";
++		#sound-dai-cells = <0>;
++		reg = <0x1a>;
++		dlg,micbias1-lvl = <2500>;
++		dlg,micbias2-lvl = <2500>;
++		VDDA-supply = <&reg_1p8v>;
++		VDDIO-supply = <&reg_3p3v>;
++		VDDMIC-supply = <&reg_3p3v>;
++		clocks = <&audio_mclock>;
++		clock-names = "mclk";
++		status = "disabled";
++	};
++
++	versa3: versa3@68 {
++		compatible = "renesas,5p35023";
++		reg = <0x68>;
++		#clock-cells = <1>;
++		clocks = <&x1_clk>;
++		clock-names = "x1";
++
++		renesas,settings = [
++			00 00 11 19 00 42 CC 2B 04 32 00 1A 5F 12 90 79
++			02 4C 00 00 00 00 00 00 10 24 19 BF 3F 30 80 86
++			80 C2 45 C4 9E 6E
++		];
++
++		assigned-clocks = <&versa3 0>,	/* DIFF2 Audio CLK2 */
++				  <&versa3 1>,	/* DIFF1 ETH1/2 CLK */
++				  <&versa3 2>,	/* OFF */
++				  <&versa3 3>,	/* SE2 Audio Master CLK */
++				  <&versa3 4>,	/* SE1 Audio CLK1 */
++				  <&versa3 5>;	/* REF RZ EXT */
++		assigned-clock-rates =	<12288000>, 
++					<25000000>,
++		                               <0>, 	
++					<12288000>,
++		                        <11289600>, 
++					<24000000>;
++	};
++
++	rtc: isl1208@6f {
++		compatible = "isil,isl1208";
++		reg = <0x6f>;
++
++		external-oscillator;
++	};
++};
++
++&i2c1 {
++	pinctrl-0 = <&i2c1_pins>;
++	pinctrl-names = "default";
++	clock-frequency = <400000>;
++	
++	status = "okay";
++
++	eeprom_i2c: eeprom_i2c@50 {
++		status = "okay";
++		compatible = "microchip,24c08", "atmel,24c08";
++		reg = <0x50>;
++		pagesize = <8>;
++	};
++};
++
++&adc {
++	pinctrl-0 = <&adc_pins>;
++	pinctrl-names = "default";
++	status = "okay";
++};
++
++&canfd {
++	pinctrl-0 = <&can0_pins>;
++	pinctrl-names = "default";
++	status = "okay";
++	channel0 {
++		renesas,channel = <0>;
++		status = "okay";
++	};
++};
++
++&sbc {
++	status = "okay";
++
++	pinctrl-0 = <&qspi0_pins>;
++	pinctrl-names = "default";
++
++	flash@0 {
++		status = "okay";
++
++		compatible = "mxicy,mx25l12833f", "jedec,spi-nor";
++		spi-max-frequency = <50000000>;
++		reg = <0>;
++		spi-rx-bus-width = <4>;
++		spi-tx-bus-width = <4>;
++		m25p,fast-read;
++
++		partitions {
++			compatible = "fixed-partitions";
++			#address-cells = <1>;
++			#size-cells = <1>;
++
++			partition@000000 {
++				label = "bl2";
++				reg = <0x00000000 0x0001D200>;
++				read-only;
++			};
++			partition@01D200 {
++				label = "fip";
++				reg = <0x0001D200 0x001C2E00>;
++				read-only;
++			};
++			partition@1E0000 {
++				label = "env";
++				reg = <0x001E0000 0x00020000>;
++				read-only;
++			};
++			partition@200000 {
++				label = "qspi-area";
++				reg = <0x00200000 0x00E00000>;
++			};
++
++		};
++	};
++};
++
++
++&pinctrl {
++	pinctrl-0 = <&sound_clk_pins>;
++	pinctrl-names = "default";
++
++	sound_clk_pins: sound_clk {
++		pins = "AUDIO_CLK1", "AUDIO_CLK2";
++		input-enable;
++	};
++
++	adc_pins: adc {
++		pinmux = <RZG2L_PORT_PINMUX(6, 2, 1)>; /* ADC_TRG */
++	};
++
++	scif0_pins: scif0 {
++		pinmux = <RZG2L_PORT_PINMUX(6, 4, 6)>, /* TxD */
++			 <RZG2L_PORT_PINMUX(6, 3, 6)>; /* RxD */
++	};
++
++	scif2_pins: scif2 {
++		pinmux = <RZG2L_PORT_PINMUX( 6, 0, 4)>, /* TxD */
++			 <RZG2L_PORT_PINMUX( 6, 1, 4)>; /* RxD */
++	};
++
++	i2c0_pins: i2c0 {
++		pins = "RIIC0_SDA", "RIIC0_SCL";
++		input-enable;
++	};
++
++	i2c1_pins: i2c1 {
++		pins = "RIIC1_SDA", "RIIC1_SCL";
++		input-enable;
++	};
++
++	eth0_pins: eth0 {
++		txc {
++			pinmux = <RZG2L_PORT_PINMUX(1, 0, 1)>; /* ET0_TXC */
++			output-enable;
++			power-source = <1800>;
++		};
++
++		mux {
++			pinmux = <RZG2L_PORT_PINMUX(4, 5, 1)>, /* ET0_LINKSTA */
++				 <RZG2L_PORT_PINMUX(4, 3, 1)>, /* ET0_MDC */
++				 <RZG2L_PORT_PINMUX(4, 4, 1)>, /* ET0_MDIO */
++				 <RZG2L_PORT_PINMUX(1, 1, 1)>, /* ET0_TX_CTL */
++				 <RZG2L_PORT_PINMUX(1, 2, 1)>, /* ET0_TXD0 */
++				 <RZG2L_PORT_PINMUX(1, 3, 1)>, /* ET0_TXD1 */
++				 <RZG2L_PORT_PINMUX(1, 4, 1)>, /* ET0_TXD2 */
++				 <RZG2L_PORT_PINMUX(2, 0, 1)>, /* ET0_TXD3 */
++				 <RZG2L_PORT_PINMUX(3, 0, 1)>, /* ET0_RXC */
++				 <RZG2L_PORT_PINMUX(3, 1, 1)>, /* ET0_RX_CTL */
++				 <RZG2L_PORT_PINMUX(3, 2, 1)>, /* ET0_RXD0 */
++				 <RZG2L_PORT_PINMUX(3, 3, 1)>, /* ET0_RXD1 */
++				 <RZG2L_PORT_PINMUX(4, 0, 1)>, /* ET0_RXD2 */
++				 <RZG2L_PORT_PINMUX(4, 1, 1)>; /* ET0_RXD3 */
++			power-source = <1800>;
++		};
++	};
++
++	eth1_pins: eth1 {
++		txc {
++			pinmux = <RZG2L_PORT_PINMUX(7, 0, 1)>; /* ET1_TXC */
++			output-enable;
++			power-source = <1800>;
++		};
++
++		mux {
++			pinmux = <RZG2L_PORT_PINMUX(10, 4, 1)>, /* ET1_LINKSTA */
++				 <RZG2L_PORT_PINMUX(10, 2, 1)>, /* ET1_MDC */
++				 <RZG2L_PORT_PINMUX(10, 3, 1)>, /* ET1_MDIO */
++				 <RZG2L_PORT_PINMUX(7, 1, 1)>, /* ET1_TX_CTL */
++				 <RZG2L_PORT_PINMUX(7, 2, 1)>, /* ET1_TXD0 */
++				 <RZG2L_PORT_PINMUX(7, 3, 1)>, /* ET1_TXD1 */
++				 <RZG2L_PORT_PINMUX(7, 4, 1)>, /* ET1_TXD2 */
++				 <RZG2L_PORT_PINMUX(8, 0, 1)>, /* ET1_TXD3 */
++				 <RZG2L_PORT_PINMUX(8, 4, 1)>, /* ET1_RXC */
++				 <RZG2L_PORT_PINMUX(9, 0, 1)>, /* ET1_RX_CTL */
++				 <RZG2L_PORT_PINMUX(9, 1, 1)>, /* ET1_RXD0 */
++				 <RZG2L_PORT_PINMUX(9, 2, 1)>, /* ET1_RXD1 */
++				 <RZG2L_PORT_PINMUX(9, 3, 1)>, /* ET1_RXD2 */
++				 <RZG2L_PORT_PINMUX(10, 0, 1)>; /* ET1_RXD3 */
++			power-source = <1800>;
++		};
++	};
++
++	gpio-sd1-pwr-en-hog {
++		gpio-hog;
++		gpios = <RZG2L_GPIO( 8, 2) GPIO_ACTIVE_HIGH>;
++		output-high;
++		line-name = "gpio_sd1_pwr_en";
++	};
++
++	usb0_pins: usb0 {
++		pinmux = <RZG2L_PORT_PINMUX(5, 0, 1)>, /* VBUS */
++			 <RZG2L_PORT_PINMUX(5, 2, 1)>; /* OVC */
++	};
++
++	usb1_pins: usb1 {
++		pinmux = <RZG2L_PORT_PINMUX(18, 4, 4)>, /* VBUS */
++			 <RZG2L_PORT_PINMUX(18, 5, 4)>; /* OVC */
++	};
++
++	can0_stb {
++		gpio-hog;
++		gpios = <RZG2L_GPIO( 8, 1) GPIO_ACTIVE_LOW>;
++		output-high;
++		line-name = "can0_stb";
++	};
++
++	can0_pins: can0 {
++		pinmux = <RZG2L_PORT_PINMUX(13, 1, 2)>, /* TX */
++			 <RZG2L_PORT_PINMUX(13, 2, 2)>; /* RX */
++	};
++
++	sdhi0_emmc_pins: sd0emmc {
++		sd0_emmc_data {
++			pins = "SD0_DATA0", "SD0_DATA1", "SD0_DATA2", "SD0_DATA3",
++			       "SD0_DATA4", "SD0_DATA5", "SD0_DATA6", "SD0_DATA7";
++			power-source = <1800>;
++		};
++
++		sd0_emmc_ctrl {
++			pins = "SD0_CLK", "SD0_CMD";
++			power-source = <1800>;
++		};
++
++		sd0_emmc_rst {
++			pins = "SD0_RST#";
++			power-source = <1800>;
++		};
++	};
++
++	sdhi1_pins: sd1 {
++		sd1_data {
++			pins = "SD1_DATA0", "SD1_DATA1", "SD1_DATA2", "SD1_DATA3";
++			power-source  = <3300>;
++		};
++
++		sd1_ctrl {
++			pins = "SD1_CLK", "SD1_CMD";
++			power-source  = <3300>;
++		};
++
++		sd1_mux {
++			pinmux = <RZG2L_PORT_PINMUX( 0, 2, 1)>; /* SD1_CD */
++		};
++	};
++
++	sdhi1_pins_uhs: sd1_uhs {
++		sd1_data_uhs {
++			pins = "SD1_DATA0", "SD1_DATA1", "SD1_DATA2", "SD1_DATA3";
++			power-source = <1800>;
++		};
++
++		sd1_ctrl_uhs {
++			pins = "SD1_CLK", "SD1_CMD";
++			power-source = <1800>;
++		};
++
++		sd1_mux_uhs {
++			pinmux = <RZG2L_PORT_PINMUX( 0, 2, 1)>; /* SD1_CD */
++		};
++	};
++
++	qspi0_pins: qspi0 {
++		qspi0-data {
++			pins = "QSPI0_IO0", "QSPI0_IO1", "QSPI0_IO2", "QSPI0_IO3";
++			power-source = <3300>;
++		};
++
++		qspi0-ctrl {
++			pins = "QSPI0_SPCLK", "QSPI0_SSL", "QSPI_RESET#";
++			power-source = <3300>;
++		};
++	};
++};
++
+-- 
+2.34.1
+

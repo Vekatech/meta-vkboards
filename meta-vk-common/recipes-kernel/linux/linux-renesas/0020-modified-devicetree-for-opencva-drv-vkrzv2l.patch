@@ -1,0 +1,50 @@
+From efdfd144e644f28736f425c39e94e179d21b5ac1 Mon Sep 17 00:00:00 2001
+From: dtodoroff <d.todorov@vekatech.com>
+Date: Mon, 2 Dec 2024 11:46:57 +0200
+Subject: [PATCH 20/20] modified devicetree for opencva drv vkrzv2l
+
+
+diff --git a/arch/arm64/boot/dts/renesas/vkrzv2l.dts b/arch/arm64/boot/dts/renesas/vkrzv2l.dts
+index 81a52709c0fc..48cc6fa86ae2 100644
+--- a/arch/arm64/boot/dts/renesas/vkrzv2l.dts
++++ b/arch/arm64/boot/dts/renesas/vkrzv2l.dts
+@@ -62,7 +62,8 @@ mmp_reserved: linux,multimedia {
+ 		/* device specific region for contiguous allocations */
+ 		drp_reserved: DRP-AI {
+ 			reusable;
+-			reg = <0x0 0x80000000 0x0 0x20000000>;
++			reg = <0x0 0x80000000 0x0 0x20000000>,
++			      <0x0 0xB7000000 0x0 0x08000000>;       // 128MiB;
+ 		};
+ 
+ 		image_buf0: image_buf@0 {
+@@ -76,6 +77,11 @@ isp_work0: SIMPLE_ISP {
+ 			reusable;
+ 			reg = <0x0 0xB4000000 0x0 0x03000000>;
+ 		};
++
++                open_cv: open_cv {
++                        reusable;
++                        reg = <0x0 0xB7000000 0x0 0x08000000>;       // 128MiB
++                };
+ 	};
+ 
+ 	udmabuf@0 {
+@@ -87,6 +93,14 @@ udmabuf@0 {
+ 		memory-region = <&image_buf0>;
+ 	};
+ 
++	drpopencva@b7000000 {
++                compatible = "renesas,rzv2l-drpopencva";
++                reg = <0 0xB7000000 0 0x0000000>;                    // 128MiB
++                memory-region = <&open_cv>;
++                linux-memory-region = < &{/memory@48000000} >;
++                status = "okay";
++	};
++
+ 	mmngr {
+ 		compatible = "renesas,mmngr";
+ 		memory-region = <&mmp_reserved>;
+-- 
+2.34.1
+

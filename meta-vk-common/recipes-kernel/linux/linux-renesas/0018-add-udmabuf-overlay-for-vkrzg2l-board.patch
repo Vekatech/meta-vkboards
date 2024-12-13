@@ -1,0 +1,66 @@
+From 10e70d25d430fc058d018d2cc9edddeb650acecd Mon Sep 17 00:00:00 2001
+From: dtodoroff <d.todorov@vekatech.com>
+Date: Mon, 2 Dec 2024 10:45:05 +0200
+Subject: [PATCH 18/20] add udmabuf overlay for vkrzg2l board
+
+
+diff --git a/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/Makefile b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/Makefile
+index 2940b778a7c1..944cf4f877a0 100644
+--- a/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/Makefile
++++ b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/Makefile
+@@ -20,4 +20,5 @@ dtb-y += vkrz-exp-scif2.dtbo
+ dtb-y += vkrz-exp-scif2_rts_cts.dtbo
+ dtb-y += vkrz-sdhi0-emmc.dtbo
+ dtb-y += vkrz-sdhi0-sdhi.dtbo
++dtb-y += vkrz-udmabuf.dtbo
+ 
+diff --git a/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-udmabuf.dts b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-udmabuf.dts
+new file mode 100644
+index 000000000000..b147b8277a46
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-udmabuf.dts
+@@ -0,0 +1,41 @@
++/*
++ * Copyright 2024 Vekatech
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ */
++
++/dts-v1/;
++/plugin/;
++
++#include <dt-bindings/interrupt-controller/arm-gic.h>
++
++
++/ {
++	compatible = "vekatech,vkrzg2l", "renesas,r9a07g044l2", "renesas,r9a07g044";
++
++	fragment@0 {
++		target-path = "/";
++		__overlay__ {
++			#address-cells = <2>;
++			#size-cells = <2>;
++
++			udmabuf@0 {
++				compatible = "ikwzm,u-dma-buf";
++				device-name = "udmabuf0";
++				minor-number = <0>;
++				size = <0x4000000>; /* 64MiB */
++				dma-coherent;
++			};
++		};
++	};
++};
++
++
+-- 
+2.34.1
+

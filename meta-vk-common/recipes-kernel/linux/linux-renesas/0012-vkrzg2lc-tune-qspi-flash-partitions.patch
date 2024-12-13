@@ -1,0 +1,47 @@
+From 0025f4391abc5b5543b284b0c45633f51e3730be Mon Sep 17 00:00:00 2001
+From: dtodoroff <d.todorov@vekatech.com>
+Date: Mon, 25 Nov 2024 11:06:36 +0200
+Subject: [PATCH 12/20] vkrzg2lc tune qspi flash partitions
+
+
+diff --git a/arch/arm64/boot/dts/renesas/vkrzg2lc.dts b/arch/arm64/boot/dts/renesas/vkrzg2lc.dts
+index cba76b683dfd..e141f405627a 100755
+--- a/arch/arm64/boot/dts/renesas/vkrzg2lc.dts
++++ b/arch/arm64/boot/dts/renesas/vkrzg2lc.dts
+@@ -596,20 +596,24 @@ partitions {
+ 			#address-cells = <1>;
+ 			#size-cells = <1>;
+ 
+-			partition@0000000 {
+-				label = "u-boot";
+-				reg = <0x00000000 0x1FFE000>;
++			partition@000000 {
++				label = "bl2";
++				reg = <0x00000000 0x0001D200>;
+ 				read-only;
+ 			};
+-			partition@0x1FFE000 {
++			partition@01D200 {
++				label = "fip";
++				reg = <0x0001D200 0x001C2E00>;
++				read-only;
++			};
++			partition@1E0000 {
+ 				label = "env";
+-				reg = <0x1FFE000 0x2000>;
++				reg = <0x001E0000 0x00020000>;
+ 				read-only;
+ 			};
+-			partition@0x2000000 {
+-				label = "rootfs";
+-				/* 32MB @ 32MB offset in SPI Flash */
+-				reg = <0x2000000 0x2000000>;
++			partition@200000 {
++				label = "qspi-area";
++				reg = <0x00200000 0x03E00000>;
+ 			};
+ 		};
+ 	};
+-- 
+2.34.1
+

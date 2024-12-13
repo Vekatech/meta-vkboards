@@ -1,0 +1,97 @@
+From 24d60380c2be0418597627ed3a68671aec093c5c Mon Sep 17 00:00:00 2001
+From: dtodoroff <d.todorov@vekatech.com>
+Date: Sun, 3 Nov 2024 10:29:40 +0200
+Subject: [PATCH 3/9] resolve issue with multi mii buses
+
+
+diff --git a/drivers/net/ravb.c b/drivers/net/ravb.c
+index 68644ce537..229efad7d0 100644
+--- a/drivers/net/ravb.c
++++ b/drivers/net/ravb.c
+@@ -550,6 +550,7 @@ static int ravb_probe(struct udevice *dev)
+ 	struct mii_dev *mdiodev;
+ 	void __iomem *iobase;
+ 	int ret;
++	int i;
+ 
+ 	iobase = map_physmem(pdata->iobase, 0x1000, MAP_NOCACHE);
+ 	eth->iobase = iobase;
+@@ -579,7 +580,16 @@ static int ravb_probe(struct udevice *dev)
+ 
+ 	mdiodev->read = bb_miiphy_read;
+ 	mdiodev->write = bb_miiphy_write;
++#ifdef CONFIG_BITBANGMII_MULTI
++	for (i = 0; i < bb_miiphy_buses_num; i++) {
++		if(NULL == bb_miiphy_buses[i].priv) {
++			bb_miiphy_buses[i].priv = eth;
++			break;
++		}
++	}
++#else
+ 	bb_miiphy_buses[0].priv = eth;
++#endif
+ 	snprintf(mdiodev->name, sizeof(mdiodev->name), dev->name);
+ 
+ 	ret = mdio_register(mdiodev);
+@@ -695,7 +705,21 @@ int ravb_bb_delay(struct bb_miiphy_bus *bus)
+ 
+ struct bb_miiphy_bus bb_miiphy_buses[] = {
+ 	{
+-		.name		= "ravb",
++		.name		= "",
++		.init		= ravb_bb_init,
++		.mdio_active	= ravb_bb_mdio_active,
++		.mdio_tristate	= ravb_bb_mdio_tristate,
++		.set_mdio	= ravb_bb_set_mdio,
++		.get_mdio	= ravb_bb_get_mdio,
++		.set_mdc	= ravb_bb_set_mdc,
++		.delay		= ravb_bb_delay,
++#ifdef CONFIG_BITBANGMII_MULTI
++		.priv		= NULL,
++#endif
++	},
++#ifdef CONFIG_BITBANGMII_MULTI
++	{
++		.name		= "",
+ 		.init		= ravb_bb_init,
+ 		.mdio_active	= ravb_bb_mdio_active,
+ 		.mdio_tristate	= ravb_bb_mdio_tristate,
+@@ -703,7 +727,9 @@ struct bb_miiphy_bus bb_miiphy_buses[] = {
+ 		.get_mdio	= ravb_bb_get_mdio,
+ 		.set_mdc	= ravb_bb_set_mdc,
+ 		.delay		= ravb_bb_delay,
++		.priv		= NULL,
+ 	},
++#endif
+ };
+ int bb_miiphy_buses_num = ARRAY_SIZE(bb_miiphy_buses);
+ 
+@@ -722,6 +748,7 @@ int ravb_of_to_plat(struct udevice *dev)
+ 	const char *phy_mode;
+ 	const fdt32_t *cell;
+ 	int ret = 0;
++	int i;
+ 
+ 	pdata->iobase = dev_read_addr(dev);
+ 	pdata->phy_interface = -1;
+@@ -739,7 +766,17 @@ int ravb_of_to_plat(struct udevice *dev)
+ 	if (cell)
+ 		pdata->max_speed = fdt32_to_cpu(*cell);
+ 
++#ifdef CONFIG_BITBANGMII_MULTI
++	for (i = 0; i < bb_miiphy_buses_num; i++) {
++		if(!strlen(bb_miiphy_buses[i].name)) {
++			sprintf(bb_miiphy_buses[i].name, dev->name);
++			return ret;
++		}
++	}
++	return -EPERM;
++#else
+ 	sprintf(bb_miiphy_buses[0].name, dev->name);
++#endif
+ 
+ 	return ret;
+ }
+-- 
+2.34.1
+

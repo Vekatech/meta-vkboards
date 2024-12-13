@@ -1,0 +1,56 @@
+From b674d2391c045b9e4bb33945ce1dde6d745f1c26 Mon Sep 17 00:00:00 2001
+From: dtodoroff <d.todorov@vekatech.com>
+Date: Sun, 3 Nov 2024 13:15:34 +0200
+Subject: [PATCH 06/20] add vkboards config options in build system
+
+
+diff --git a/drivers/soc/renesas/Kconfig b/drivers/soc/renesas/Kconfig
+index 186f4f8b9314..937aa67c57dd 100644
+--- a/drivers/soc/renesas/Kconfig
++++ b/drivers/soc/renesas/Kconfig
+@@ -340,6 +340,42 @@ config ARCH_R9A09G055
+         help
+           This enables support for the Renesas RZ/V2M SoC.
+ 
++config BOARD_VKRZG2L
++	bool "ARM64 Platform support for VK-RZ/G2L board"
++	select ARCH_R9A07G044
++	help
++	  This enables support for the Vekatech VK-RZ/G2L board.
++
++config BOARD_VKRZV2L
++	bool "ARM64 Platform support for VK-RZ/V2L board"
++	select ARCH_R9A07G054
++	help
++	  This enables support for the Vekatech VK-RZ/V2L board.
++
++config BOARD_VKRZG2LC
++	bool "ARM64 Platform support for VK-RZ/G2LC board"
++	select ARCH_R9A07G044
++	help
++	  This enables support for the Vekatech VK-RZ/G2LC board.
++
++config BOARD_VKCMG2LC
++	bool "ARM64 Platform support for VK-CMRZ/G2LC Carrier board"
++	select ARCH_R9A07G044
++	help
++	  This enables support for the Vekatech VK-CMGZ/G2LC Carrier board.
++
++config BOARD_VK_D184280E
++	bool "ARM64 Platform support for VK-D184280E board"
++	select ARCH_R9A07G044
++	help
++	  This enables support for the Vekatech VK-D184280E board.
++
++config BOARD_VKRZG2UL
++	bool "ARM64 Platform support for VK-RZ/G2UL board"
++	select ARCH_R9A07G043
++	help
++	  This enables support for the Vekatech VK-RZ/G2UL board.
++
+ endif # ARM64
+ 
+ if RISCV
+-- 
+2.34.1
+

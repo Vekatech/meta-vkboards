@@ -1,0 +1,24 @@
+From f14f35a3431216556926634eba77685eb70efe23 Mon Sep 17 00:00:00 2001
+From: dtodoroff <d.todorov@vekatech.com>
+Date: Tue, 26 Nov 2024 16:53:18 +0200
+Subject: [PATCH 17/20] DMA disabling for rzg2l scif3
+
+
+diff --git a/arch/arm64/boot/dts/renesas/r9a07g044.dtsi b/arch/arm64/boot/dts/renesas/r9a07g044.dtsi
+index 80557ac31f5a..504a0d378632 100644
+--- a/arch/arm64/boot/dts/renesas/r9a07g044.dtsi
++++ b/arch/arm64/boot/dts/renesas/r9a07g044.dtsi
+@@ -478,8 +478,8 @@ scif3: serial@1004c400 {
+ 					  "bri", "dri", "tei";
+ 			clocks = <&cpg CPG_MOD R9A07G044_SCIF3_CLK_PCK>;
+ 			clock-names = "fck";
+-			dmas = <&dmac 0x4e85>, <&dmac 0x4e86>;
+-			dma-names = "tx", "rx";
++			/*dmas = <&dmac 0x4e85>, <&dmac 0x4e86>;
++			dma-names = "tx", "rx";*/
+ 			power-domains = <&cpg>;
+ 			resets = <&cpg R9A07G044_SCIF3_RST_SYSTEM_N>;
+ 			status = "disabled";
+-- 
+2.34.1
+

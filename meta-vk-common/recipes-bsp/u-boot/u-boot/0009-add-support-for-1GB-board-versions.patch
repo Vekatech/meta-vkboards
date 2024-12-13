@@ -1,0 +1,747 @@
+From 635b922c1918180df133475b694fbcd447c92336 Mon Sep 17 00:00:00 2001
+From: dtodoroff <d.todorov@vekatech.com>
+Date: Mon, 25 Nov 2024 10:17:53 +0200
+Subject: [PATCH 9/9] add support for 1GB board versions
+
+
+diff --git a/arch/arm/dts/Makefile b/arch/arm/dts/Makefile
+index 59df885926..78b0eeed8f 100644
+--- a/arch/arm/dts/Makefile
++++ b/arch/arm/dts/Makefile
+@@ -937,9 +937,11 @@ dtb-$(CONFIG_RCAR_GEN3) += \
+         vkrzg2l.dtb \
+ 	vkrzg2lc.dtb \
+ 	vkcmg2lc.dtb \
++	vkcmg2lc_1.dtb \
+ 	vkrzv2l.dtb \
+ 	vkrzg2ul.dtb \
+-	vk-d184280e.dtb
++	vk-d184280e.dtb \
++	vk-d184280e-1.dtb
+ 
+ ifdef CONFIG_RCAR_GEN3
+ DTC_FLAGS += -R 4 -p 0x1000
+diff --git a/arch/arm/dts/vk-d184280e-1.dts b/arch/arm/dts/vk-d184280e-1.dts
+new file mode 100644
+index 0000000000..c02b770303
+--- /dev/null
++++ b/arch/arm/dts/vk-d184280e-1.dts
+@@ -0,0 +1,120 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Device Tree Source for the VK-CMRZ/G2LC board
++ *
++ */
++
++/dts-v1/;
++#include <dt-bindings/gpio/gpio.h>
++#include "r9a07g044c.dtsi"
++#include "r9a07g044c-u-boot.dtsi"
++#include <dt-bindings/pinctrl/rzg2l-pinctrl.h>
++
++/ {
++        model = "Vekatech vk-d184280e 1GB";
++        compatible = "renesas,r9a07g044c", "renesas,rzg2lc";
++
++        aliases {
++                serial0 = &scif0;
++        };
++
++        chosen {
++                stdout-path = "serial0:115200n8";
++        };
++
++        memory@48000000 {
++                device_type = "memory";
++                /* first 128MB is reserved for secure area. */
++                reg = <0 0x48000000 0 0x38000000>; 
++        };
++
++};
++
++&pinctrl {
++        eth0_pins: eth0 {
++                pinmux = <RZG2L_PINMUX(28, 1, 1)>, /* ET0_LINKSTA */
++                         <RZG2L_PINMUX(27, 1, 1)>, /* ET0_MDC */
++                         <RZG2L_PINMUX(28, 0, 1)>, /* ET0_MDIO */
++                         <RZG2L_PINMUX(20, 0, 1)>, /* ET0_TXC */
++                         <RZG2L_PINMUX(20, 1, 1)>, /* ET0_TX_CTL */
++                         <RZG2L_PINMUX(20, 2, 1)>, /* ET0_TXD0 */
++                         <RZG2L_PINMUX(21, 0, 1)>, /* ET0_TXD1 */
++                         <RZG2L_PINMUX(21, 1, 1)>, /* ET0_TXD2 */
++                         <RZG2L_PINMUX(22, 0, 1)>, /* ET0_TXD3 */
++                         <RZG2L_PINMUX(24, 0, 1)>, /* ET0_RXC */
++                         <RZG2L_PINMUX(24, 1, 1)>, /* ET0_RX_CTL */
++                         <RZG2L_PINMUX(25, 0, 1)>, /* ET0_RXD0 */
++                         <RZG2L_PINMUX(25, 1, 1)>, /* ET0_RXD1 */
++                         <RZG2L_PINMUX(26, 0, 1)>, /* ET0_RXD2 */
++                         <RZG2L_PINMUX(26, 1, 1)>; /* ET0_RXD3 */
++        };
++
++	i2c2_pins: i2c2 {
++                pinmux = <RZG2L_PINMUX(42, 3, 1)>,
++                         <RZG2L_PINMUX(42, 4, 1)>;
++        }; 
++
++};
++
++&xinclk {
++        clock-frequency = <24000000>;
++};
++
++&scif0 {
++        status = "okay";
++        clock = <100000000>;
++};
++
++&sdhi0 {
++        bus-width = <8>;
++        status = "okay";
++};
++
++&eth0 {
++        pinctrl-names = "default";
++        pinctrl-0 = <&eth0_pins>;
++        phy-handle = <&phy0>;
++        phy-mode = "rgmii-id";
++        status = "okay";
++
++        phy0: ethernet-phy@1 {
++                reg = <1>;
++        };
++};
++
++&ehci0 {
++        status = "okay";
++}; 
++
++&hsusb {
++	dr_mode = "otg";
++	status = "okay";
++};
++
++&i2c0 {
++        pinctrl-names = "default";
++        status = "okay";
++
++	eeprom0: eeprom@50 {
++		compatible = "atmel,24c02";
++		reg = <0x50>;
++		pagesize = <16>;
++	};
++};
++
++&i2c1 {
++        pinctrl-names = "default";
++        status = "okay";
++};
++
++&i2c2 {
++        pinctrl-0 = <&i2c2_pins>;
++        pinctrl-names = "default";
++        status = "okay";
++};
++
++
++&wdt0 {
++        status = "okay";
++        timeout-sec = <60>;
++};
+diff --git a/arch/arm/dts/vkcmg2lc_1.dts b/arch/arm/dts/vkcmg2lc_1.dts
+new file mode 100644
+index 0000000000..df8010d53f
+--- /dev/null
++++ b/arch/arm/dts/vkcmg2lc_1.dts
+@@ -0,0 +1,162 @@
++// SPDX-License-Identifier: GPL-2.0
++/*
++ * Device Tree Source for the VK-CMRZ/G2LC board
++ *
++ */
++
++/dts-v1/;
++#include <dt-bindings/gpio/gpio.h>
++#include "r9a07g044c.dtsi"
++#include "r9a07g044c-u-boot.dtsi"
++#include <dt-bindings/pinctrl/rzg2l-pinctrl.h>
++
++/ {
++        model = "Vekatech vkcmg2lc-1GB";
++        compatible = "renesas,r9a07g044c", "renesas,rzg2lc";
++
++        aliases {
++                serial0 = &scif0;
++                spi0 = &spibsc;
++        };
++
++        chosen {
++                stdout-path = "serial0:115200n8";
++        };
++
++        memory@48000000 {
++                device_type = "memory";
++                /* first 128MB is reserved for secure area. */
++                reg = <0 0x48000000 0 0x38000000>; 
++        };
++
++};
++
++&pinctrl {
++        eth0_pins: eth0 {
++                pinmux = <RZG2L_PINMUX(28, 1, 1)>, /* ET0_LINKSTA */
++                         <RZG2L_PINMUX(27, 1, 1)>, /* ET0_MDC */
++                         <RZG2L_PINMUX(28, 0, 1)>, /* ET0_MDIO */
++                         <RZG2L_PINMUX(20, 0, 1)>, /* ET0_TXC */
++                         <RZG2L_PINMUX(20, 1, 1)>, /* ET0_TX_CTL */
++                         <RZG2L_PINMUX(20, 2, 1)>, /* ET0_TXD0 */
++                         <RZG2L_PINMUX(21, 0, 1)>, /* ET0_TXD1 */
++                         <RZG2L_PINMUX(21, 1, 1)>, /* ET0_TXD2 */
++                         <RZG2L_PINMUX(22, 0, 1)>, /* ET0_TXD3 */
++                         <RZG2L_PINMUX(24, 0, 1)>, /* ET0_RXC */
++                         <RZG2L_PINMUX(24, 1, 1)>, /* ET0_RX_CTL */
++                         <RZG2L_PINMUX(25, 0, 1)>, /* ET0_RXD0 */
++                         <RZG2L_PINMUX(25, 1, 1)>, /* ET0_RXD1 */
++                         <RZG2L_PINMUX(26, 0, 1)>, /* ET0_RXD2 */
++                         <RZG2L_PINMUX(26, 1, 1)>; /* ET0_RXD3 */
++        };
++};
++
++&xinclk {
++        clock-frequency = <24000000>;
++};
++
++&scif0 {
++        status = "okay";
++        clock = <100000000>;
++};
++
++&sdhi0 {
++        /* pinctrl placeholder
++         * If this channel is used for interfacing with a SD card, a power enable
++         * pin (SD0_PWR_EN) must be defined.
++         * The SD0_PWR_EN pin is associated with P4_1.
++         * A HIGH signal on SD0_PWR_EN will enable supply voltage for SD card.
++        */
++        bus-width = <8>;
++        status = "okay";
++};
++
++&sdhi1 {
++        /* pinctrl placeholder
++         * A power enable pin (SD1_PWR_EN) must be defined to interface with a
++         * SD card.
++         * The SD1_PWR_EN pin is associated with P39_2.
++         * A HIGH signal on SD1_PWR_EN will enable supply voltage for SD card.
++        */
++        bus-width = <4>;
++        status = "okay";
++};
++
++&eth0 {
++        pinctrl-names = "default";
++        pinctrl-0 = <&eth0_pins>;
++        phy-handle = <&phy0>;
++        phy-mode = "rgmii-id";
++        status = "okay";
++
++        phy0: ethernet-phy@1 {
++                reg = <1>;
++        };
++};
++
++&ehci0 {
++        status = "okay";
++}; 
++
++&ehci1 {
++        status = "okay";
++};
++
++&hsusb {
++	dr_mode = "otg";
++	status = "okay";
++};
++
++&i2c0 {
++        pinctrl-names = "default";
++        status = "okay";
++
++	eeprom0: eeprom@50 {
++		compatible = "atmel,24c02";
++		reg = <0x50>;
++		pagesize = <16>;
++	};
++
++	pca9538: pca953x@70 {
++		compatible = "nxp,pca9538";
++		reg = <0x70>;
++		gpio-controller;
++		#gpio-cells = <2>;
++
++		sd-pwr-en-hog {
++			gpio-hog;
++			gpios = <6 GPIO_ACTIVE_HIGH>;
++			output-high;
++			line-name = "sd_pwr_en";
++		};
++	};
++};
++
++&i2c1 {
++        pinctrl-names = "default";
++        status = "okay";
++};
++
++
++&spibsc {
++        num-cs = <1>;
++        status = "okay";
++        spi-max-frequency = <40000000>;
++        #address-cells = <1>;
++        #size-cells = <0>;
++        flash0: spi-flash@0 {
++                #address-cells = <1>;
++                #size-cells = <1>;
++                compatible = "spi-flash", "jedec,spi-nor";
++                spi-max-frequency = <40000000>;
++                spi-tx-bus-width = <1>;
++                spi-rx-bus-width = <1>;
++                reg = <0>;
++                status = "okay";
++        };
++};
++
++&wdt0 {
++        status = "okay";
++        timeout-sec = <60>;
++};
+diff --git a/arch/arm/dts/vkrzv2l.dts b/arch/arm/dts/vkrzv2l.dts
+index 0ce58102cf..9a803f26c2 100644
+--- a/arch/arm/dts/vkrzv2l.dts
++++ b/arch/arm/dts/vkrzv2l.dts
+@@ -33,7 +33,6 @@
+                 device_type = "memory";
+                 /* first 128MB is reserved for secure area. */
+                 reg = <0 0x48000000 0 0x78000000>;
+-                /*reg = <0 0x48000000 0 0x38000000>;*/
+         };
+ 
+ 
+diff --git a/arch/arm/mach-rmobile/Kconfig.64 b/arch/arm/mach-rmobile/Kconfig.64
+index 073b6d41e7..0fe82db212 100644
+--- a/arch/arm/mach-rmobile/Kconfig.64
++++ b/arch/arm/mach-rmobile/Kconfig.64
+@@ -215,6 +215,11 @@ config TARGET_VKCMG2LC
+         help
+           Support for Vekatech VK-CMRZ/G2LC Board
+ 
++config TARGET_VKCMG2LC_1
++        bool "Vekatech VK-CMRZ/G2LC Board 1GB DDR4"
++        help
++          Support for Vekatech VK-CMRZ/G2LC Board 1GB DDR4
++
+ config TARGET_VKRZV2L
+         bool "Vekatech VK-RZ/V2L Board "
+         help
+@@ -230,6 +235,11 @@ config TARGET_VK_D184280E
+         help
+           Support for Vekatech VK-D184280E Board
+ 
++config TARGET_VK_D184280E_1
++        bool "Vekatech VK-D184280E Board 1GB DDR4 "
++        help
++          Support for Vekatech VK-D184280E Board 1GB DDR4
++
+ config TARGET_SMARC_RZG2LC
+ 	bool "RZ/G2LC SMARC board"
+ 	help
+diff --git a/board/renesas/vk-d184280e/Kconfig b/board/renesas/vk-d184280e/Kconfig
+index deb9636fcb..3bc626b6cc 100644
+--- a/board/renesas/vk-d184280e/Kconfig
++++ b/board/renesas/vk-d184280e/Kconfig
+@@ -1,4 +1,4 @@
+-if TARGET_VK_D184280E
++if TARGET_VK_D184280E || TARGET_VK_D184280E_1
+ 
+ config SYS_SOC
+         default "rmobile"
+@@ -17,7 +17,6 @@ config SYS_MMC_DEV
+ 	default 1 if ENV_IS_IN_SPI_FLASH
+ 	default 0
+ 
+-
+ config SYS_MMC_IMG_LOAD_PART
+ 	int
+ 	default 1
+diff --git a/board/renesas/vkcmg2lc/Kconfig b/board/renesas/vkcmg2lc/Kconfig
+index 5fcb5ca007..195923baf2 100644
+--- a/board/renesas/vkcmg2lc/Kconfig
++++ b/board/renesas/vkcmg2lc/Kconfig
+@@ -1,4 +1,4 @@
+-if TARGET_VKCMG2LC
++if TARGET_VKCMG2LC || TARGET_VKCMG2LC_1
+ 
+ config SYS_SOC
+         default "rmobile"
+diff --git a/configs/vk-d184280e_1_defconfig b/configs/vk-d184280e_1_defconfig
+new file mode 100644
+index 0000000000..90130c29b5
+--- /dev/null
++++ b/configs/vk-d184280e_1_defconfig
+@@ -0,0 +1,122 @@
++CONFIG_USB_GADGET=y
++CONFIG_USB_RENESAS_USBHS=y
++CONFIG_USB_FUNCTION_FASTBOOT=y
++CONFIG_FASTBOOT_BUF_ADDR=0x4D000000
++CONFIG_FASTBOOT_BUF_SIZE=0x8000000
++CONFIG_FASTBOOT_USB_DEV=1
++CONFIG_FASTBOOT_MMC_BOOT_SUPPORT=y
++CONFIG_FASTBOOT_MMC_BOOT1_NAME="mmc0boot0"
++CONFIG_FASTBOOT_MMC_BOOT2_NAME="mmc0boot1"
++CONFIG_FASTBOOT_MMC_USER_SUPPORT=y
++CONFIG_FASTBOOT_MMC_USER_NAME="mmc0"
++CONFIG_FASTBOOT_GPT_NAME="gpt"
++CONFIG_FASTBOOT_MBR_NAME="mbr"
++CONFIG_FASTBOOT_FLASH=y
++#On RZ/G2L 0 is eMMC - 1 is SDCard.
++CONFIG_FASTBOOT_FLASH_MMC_DEV=0
++CONFIG_USB_GADGET_MANUFACTURER="Renesas"
++CONFIG_USB_GADGET_VENDOR_NUM=0x18D1
++CONFIG_USB_GADGET_PRODUCT_NUM=0x4E23
++CONFIG_CMD_FASTBOOT=y
++CONFIG_USB_FUNCTION_MASS_STORAGE=y
++CONFIG_CMD_USB_MASS_STORAGE=y
++CONFIG_ARM=y
++CONFIG_ARCH_CPU_INIT=y
++CONFIG_ARCH_RMOBILE=y
++CONFIG_SYS_TEXT_BASE=0x50000000
++CONFIG_DM_GPIO=y
++CONFIG_RCAR_GEN3=y
++CONFIG_R9A07G044C=y
++CONFIG_TARGET_VK_D184280E_1=y
++CONFIG_SPL=n
++CONFIG_DEFAULT_DEVICE_TREE="vk-d184280e-1"
++CONFIG_SMBIOS_PRODUCT_NAME=""
++# CONFIG_ANDROID_BOOT_IMAGE is not set
++CONFIG_FIT=y
++CONFIG_USE_BOOTARGS=y
++CONFIG_BOOTARGS="rw rootwait earlycon root=/dev/mmcblk0p1 ${extrabootargs}"
++CONFIG_SUPPORT_RAW_INITRD=y
++CONFIG_DEFAULT_FDT_FILE="vk-d184280e-1.dtb"
++CONFIG_VERSION_VARIABLE=y
++CONFIG_CMD_CM33=y
++CONFIG_HUSH_PARSER=y
++CONFIG_CMD_BOOTZ=y
++CONFIG_CMD_GPIO=y
++CONFIG_CMD_I2C=y
++CONFIG_CMD_SPI=y
++CONFIG_CMD_MMC=y
++CONFIG_CMD_PCI=y
++CONFIG_CMD_USB=y
++CONFIG_CMD_DHCP=y
++CONFIG_CMD_MII=y
++CONFIG_CMD_PING=y
++CONFIG_CMD_EXT2=y
++CONFIG_CMD_EXT4=y
++CONFIG_CMD_EXT4_WRITE=y
++CONFIG_CMD_FAT=y
++CONFIG_CMD_FS_GENERIC=y
++CONFIG_OF_CONTROL=y
++CONFIG_OF_LIST="vk-d184280e-1"
++CONFIG_MULTI_DTB_FIT_LZO=y
++CONFIG_MULTI_DTB_FIT_USER_DEFINED_AREA=y
++CONFIG_ENV_OVERWRITE=y
++#
++CONFIG_ENV_IS_IN_MMC=y
++CONFIG_SYS_MMC_ENV_DEV=0
++CONFIG_SYS_MMC_ENV_PART=1
++CONFIG_ENV_SIZE=0x20000
++CONFIG_ENV_OFFSET=0xFFFE0000
++#
++CONFIG_SYS_RELOC_GD_ENV_ADDR=y
++CONFIG_NET_RANDOM_ETHADDR=y
++CONFIG_REGMAP=y
++CONFIG_SYSCON=y
++CONFIG_CLK=y
++CONFIG_CLK_RENESAS=y
++CONFIG_CLK_R9A07G044L=y
++CONFIG_UDP_FUNCTION_FASTBOOT=y
++#CONFIG_FASTBOOT_BUF_ADDR=0x82000000
++#CONFIG_FASTBOOT_FLASH=y
++#CONFIG_FASTBOOT_FLASH_MMC_DEV=0
++CONFIG_RCAR_GPIO=y
++CONFIG_RZG2L_GPIO=y
++CONFIG_DM=y
++CONFIG_DM_I2C=y
++CONFIG_MISC=y
++CONFIG_SYS_I2C_RCAR_IIC=y
++CONFIG_SYS_I2C_RZG2L_RIIC=y
++CONFIG_SH_SDHI=y
++CONFIG_BITBANGMII=y
++CONFIG_PHY_REALTEK=y
++CONFIG_DM_ETH=y
++CONFIG_RENESAS_RAVB=y
++CONFIG_PCI=y
++CONFIG_DM_PCI=y
++CONFIG_PCI_RCAR_GEN3=y
++CONFIG_PINCTRL_PFC_RZG2L=y
++CONFIG_DM_REGULATOR=y
++CONFIG_DM_REGULATOR_FIXED=y
++CONFIG_DM_REGULATOR_GPIO=y
++CONFIG_SCIF_CONSOLE=y
++CONFIG_TEE=y
++CONFIG_OPTEE=y
++CONFIG_USB=y
++CONFIG_DM_USB=y
++CONFIG_USB_XHCI_HCD=y
++CONFIG_USB_EHCI_HCD=y
++CONFIG_USB_EHCI_GENERIC=y
++CONFIG_USB_STORAGE=y
++CONFIG_OF_LIBFDT_OVERLAY=y
++CONFIG_SMBIOS_MANUFACTURER=""
++CONFIG_WDT=y
++CONFIG_RENESAS_RZG2LWDT=y
++CONFIG_CMD_WDT=y
++CONFIG_BOARD_LATE_INIT=y
++CONFIG_CMD_EEPROM=y
++CONFIG_I2C_SET_DEFAULT_BUS_NUM=y
++CONFIG_I2C_DEFAULT_BUS_NUMBER=0
++CONFIG_I2C_EEPROM=y
++CONFIG_SYS_I2C_EEPROM_ADDR=0x50
++CONFIG_SYS_I2C_EEPROM_BUS=0
++CONFIG_SYS_I2C_EEPROM_ADDR_LEN=1
++
+diff --git a/configs/vkcmg2lc_1_defconfig b/configs/vkcmg2lc_1_defconfig
+new file mode 100644
+index 0000000000..9c7dce0839
+--- /dev/null
++++ b/configs/vkcmg2lc_1_defconfig
+@@ -0,0 +1,135 @@
++CONFIG_USB_GADGET=y
++CONFIG_USB_RENESAS_USBHS=y
++CONFIG_USB_FUNCTION_FASTBOOT=y
++CONFIG_FASTBOOT_BUF_ADDR=0x4D000000
++CONFIG_FASTBOOT_BUF_SIZE=0x8000000
++CONFIG_FASTBOOT_USB_DEV=1
++CONFIG_FASTBOOT_MMC_BOOT_SUPPORT=y
++CONFIG_FASTBOOT_MMC_BOOT1_NAME="mmc0boot0"
++CONFIG_FASTBOOT_MMC_BOOT2_NAME="mmc0boot1"
++CONFIG_FASTBOOT_MMC_USER_SUPPORT=y
++CONFIG_FASTBOOT_MMC_USER_NAME="mmc0"
++CONFIG_FASTBOOT_GPT_NAME="gpt"
++CONFIG_FASTBOOT_MBR_NAME="mbr"
++CONFIG_FASTBOOT_FLASH=y
++#On RZ/G2L 0 is eMMC - 1 is SDCard.
++CONFIG_FASTBOOT_FLASH_MMC_DEV=0
++CONFIG_USB_GADGET_MANUFACTURER="Renesas"
++CONFIG_USB_GADGET_VENDOR_NUM=0x18D1
++CONFIG_USB_GADGET_PRODUCT_NUM=0x4E23
++CONFIG_CMD_FASTBOOT=y
++CONFIG_USB_FUNCTION_MASS_STORAGE=y
++CONFIG_CMD_USB_MASS_STORAGE=y
++CONFIG_ARM=y
++CONFIG_ARCH_CPU_INIT=y
++CONFIG_ARCH_RMOBILE=y
++CONFIG_SYS_TEXT_BASE=0x50000000
++CONFIG_DM_GPIO=y
++CONFIG_RCAR_GEN3=y
++CONFIG_R9A07G044C=y
++CONFIG_TARGET_VKCMG2LC_1=y
++CONFIG_SPL=n
++CONFIG_DEFAULT_DEVICE_TREE="vkcmg2lc_1"
++CONFIG_SMBIOS_PRODUCT_NAME=""
++# CONFIG_ANDROID_BOOT_IMAGE is not set
++CONFIG_FIT=y
++CONFIG_USE_BOOTARGS=y
++CONFIG_BOOTARGS="rw rootwait earlycon root=/dev/mmcblk0p1 ${extrabootargs}"
++CONFIG_SUPPORT_RAW_INITRD=y
++CONFIG_DEFAULT_FDT_FILE="vkcmg2lc_1.dtb"
++CONFIG_VERSION_VARIABLE=y
++CONFIG_CMD_CM33=y
++CONFIG_HUSH_PARSER=y
++CONFIG_CMD_BOOTZ=y
++CONFIG_CMD_GPIO=y
++CONFIG_CMD_I2C=y
++CONFIG_CMD_SPI=y
++CONFIG_CMD_MMC=y
++CONFIG_CMD_PCI=y
++CONFIG_CMD_USB=y
++CONFIG_CMD_DHCP=y
++CONFIG_CMD_MII=y
++CONFIG_CMD_PING=y
++CONFIG_CMD_EXT2=y
++CONFIG_CMD_EXT4=y
++CONFIG_CMD_EXT4_WRITE=y
++CONFIG_CMD_FAT=y
++CONFIG_CMD_FS_GENERIC=y
++CONFIG_OF_CONTROL=y
++CONFIG_OF_LIST="vkcmg2lc_1"
++CONFIG_MULTI_DTB_FIT_LZO=y
++CONFIG_MULTI_DTB_FIT_USER_DEFINED_AREA=y
++CONFIG_ENV_OVERWRITE=y
++#
++CONFIG_ENV_IS_IN_MMC=y
++CONFIG_SYS_MMC_ENV_DEV=0
++CONFIG_SYS_MMC_ENV_PART=1
++CONFIG_ENV_SIZE=0x20000
++CONFIG_ENV_OFFSET=0xFFFE0000
++#
++CONFIG_SYS_RELOC_GD_ENV_ADDR=y
++CONFIG_NET_RANDOM_ETHADDR=y
++CONFIG_REGMAP=y
++CONFIG_SYSCON=y
++CONFIG_CLK=y
++CONFIG_CLK_RENESAS=y
++CONFIG_CLK_R9A07G044L=y
++CONFIG_UDP_FUNCTION_FASTBOOT=y
++#CONFIG_FASTBOOT_BUF_ADDR=0x82000000
++#CONFIG_FASTBOOT_FLASH=y
++#CONFIG_FASTBOOT_FLASH_MMC_DEV=0
++CONFIG_RCAR_GPIO=y
++CONFIG_RZG2L_GPIO=y
++CONFIG_DM=y
++CONFIG_DM_I2C=y
++CONFIG_MISC=y
++CONFIG_SYS_I2C_RCAR_IIC=y
++CONFIG_SYS_I2C_RZG2L_RIIC=y
++CONFIG_SH_SDHI=y
++CONFIG_BITBANGMII=y
++CONFIG_PHY_REALTEK=y
++CONFIG_DM_ETH=y
++CONFIG_RENESAS_RAVB=y
++CONFIG_PCI=y
++CONFIG_DM_PCI=y
++CONFIG_PCI_RCAR_GEN3=y
++CONFIG_PINCTRL_PFC_RZG2L=y
++CONFIG_DM_REGULATOR=y
++CONFIG_DM_REGULATOR_FIXED=y
++CONFIG_DM_REGULATOR_GPIO=y
++CONFIG_SCIF_CONSOLE=y
++CONFIG_TEE=y
++CONFIG_OPTEE=y
++CONFIG_USB=y
++CONFIG_DM_USB=y
++CONFIG_USB_XHCI_HCD=y
++CONFIG_USB_EHCI_HCD=y
++CONFIG_USB_EHCI_GENERIC=y
++CONFIG_USB_STORAGE=y
++CONFIG_OF_LIBFDT_OVERLAY=y
++CONFIG_SMBIOS_MANUFACTURER=""
++CONFIG_WDT=y
++CONFIG_RENESAS_RZG2LWDT=y
++CONFIG_CMD_WDT=y
++CONFIG_BOARD_LATE_INIT=y
++CONFIG_CMD_EEPROM=y
++CONFIG_I2C_SET_DEFAULT_BUS_NUM=y
++CONFIG_I2C_DEFAULT_BUS_NUMBER=0
++CONFIG_I2C_EEPROM=y
++CONFIG_SYS_I2C_EEPROM_ADDR=0x50
++CONFIG_SYS_I2C_EEPROM_BUS=0
++CONFIG_SYS_I2C_EEPROM_ADDR_LEN=1
++CONFIG_SPI_FLASH=y
++CONFIG_SPI_FLASH_BAR=y
++CONFIG_SPI_FLASH_USE_4K_SECTORS=y
++CONFIG_SPI=y
++CONFIG_DM_SPI=y
++CONFIG_RENESAS_RPC_SPI=y
++CONFIG_CMD_SF=y
++CONFIG_SPI_FLASH_MACRONIX=y
++CONFIG_DM_SPI_FLASH=y
++CONFIG_PCA953X=y
++CONFIG_DM_PCA953X=y
++CONFIG_CMD_PCA953X=y
++CONFIG_SYS_I2C_PCA953X_ADDR=0x70
++CONFIG_SYS_I2C_PCA953X_WIDTH=8
+diff --git a/configs/vkrzg2lc-sf_defconfig b/configs/vkrzg2lc-sf_defconfig
+index dd0a7664da..295f0a8180 100644
+--- a/configs/vkrzg2lc-sf_defconfig
++++ b/configs/vkrzg2lc-sf_defconfig
+@@ -62,8 +62,8 @@ CONFIG_MULTI_DTB_FIT_USER_DEFINED_AREA=y
+ CONFIG_ENV_OVERWRITE=y
+ #
+ CONFIG_ENV_IS_IN_SPI_FLASH=y
+-CONFIG_ENV_SIZE=0x2000
+-CONFIG_ENV_OFFSET=0x1FFE000
++CONFIG_ENV_SIZE=0x20000
++CONFIG_ENV_OFFSET=0x1E0000
+ CONFIG_ENV_SECT_SIZE=0x1000
+ #
+ CONFIG_SYS_RELOC_GD_ENV_ADDR=y
+diff --git a/configs/vkrzv2l-sf_defconfig b/configs/vkrzv2l-sf_defconfig
+index 7fe4bd21e1..b81cdb0118 100644
+--- a/configs/vkrzv2l-sf_defconfig
++++ b/configs/vkrzv2l-sf_defconfig
+@@ -62,8 +62,8 @@ CONFIG_MULTI_DTB_FIT_USER_DEFINED_AREA=y
+ CONFIG_ENV_OVERWRITE=y
+ #
+ CONFIG_ENV_IS_IN_SPI_FLASH=y
+-CONFIG_ENV_SIZE=0x2000
+-CONFIG_ENV_OFFSET=0x1FFE000
++CONFIG_ENV_SIZE=0x20000
++CONFIG_ENV_OFFSET=0x1E0000
+ CONFIG_ENV_SECT_SIZE=0x1000
+ #
+ CONFIG_SYS_RELOC_GD_ENV_ADDR=y
+diff --git a/include/configs/vk-d184280e.h b/include/configs/vk-d184280e.h
+index 3ce20cc8d6..4bb332d6de 100644
+--- a/include/configs/vk-d184280e.h
++++ b/include/configs/vk-d184280e.h
+@@ -46,13 +46,21 @@
+ 
+ #define DRAM_RSV_SIZE           0x08000000
+ #define CONFIG_SYS_SDRAM_BASE       (0x40000000 + DRAM_RSV_SIZE)
+-//#define CONFIG_SYS_SDRAM_SIZE       (0x40000000u - DRAM_RSV_SIZE) //total 1GB
++
++#if CONFIG_TARGET_VK_D184280E_1
++#define CONFIG_SYS_SDRAM_SIZE       (0x40000000u - DRAM_RSV_SIZE) //total 1GB
++#else
+ #define CONFIG_SYS_SDRAM_SIZE       (0x80000000u - DRAM_RSV_SIZE) //total 2GB
++#endif
++
+ #define CONFIG_SYS_LOAD_ADDR        0x58000000
+ #define CONFIG_LOADADDR         CONFIG_SYS_LOAD_ADDR // Default load address for tfpt,bootp...
+ #define CONFIG_VERY_BIG_RAM
+-//#define CONFIG_MAX_MEM_MAPPED       (0x40000000u - DRAM_RSV_SIZE)
++#if CONFIG_TARGET_VK_D184280E_1
++#define CONFIG_MAX_MEM_MAPPED       (0x40000000u - DRAM_RSV_SIZE)
++#else
+ #define CONFIG_MAX_MEM_MAPPED       (0x80000000u - DRAM_RSV_SIZE)
++#endif
+ 
+ #define CONFIG_SYS_MONITOR_BASE     0x00000000
+ #define CONFIG_SYS_MONITOR_LEN      (1 * 1024 * 1024)
+diff --git a/include/configs/vkcmg2lc.h b/include/configs/vkcmg2lc.h
+index 8ccea5a5fe..6dbfa4c59d 100644
+--- a/include/configs/vkcmg2lc.h
++++ b/include/configs/vkcmg2lc.h
+@@ -45,14 +45,23 @@
+ #define CONFIG_SH_SDHI_FREQ     133000000
+ 
+ #define DRAM_RSV_SIZE           0x08000000
++
+ #define CONFIG_SYS_SDRAM_BASE       (0x40000000 + DRAM_RSV_SIZE)
+-//#define CONFIG_SYS_SDRAM_SIZE       (0x40000000u - DRAM_RSV_SIZE) //total 1GB
+-#define CONFIG_SYS_SDRAM_SIZE       (0x80000000u - DRAM_RSV_SIZE) //total 2GB
++#if CONFIG_TARGET_VKCMG2LC_1
++# define CONFIG_SYS_SDRAM_SIZE       (0x40000000u - DRAM_RSV_SIZE) //total 1GB
++#else
++# define CONFIG_SYS_SDRAM_SIZE       (0x80000000u - DRAM_RSV_SIZE) //total 2GB
++#endif
++
+ #define CONFIG_SYS_LOAD_ADDR        0x58000000
+ #define CONFIG_LOADADDR         CONFIG_SYS_LOAD_ADDR // Default load address for tfpt,bootp...
+ #define CONFIG_VERY_BIG_RAM
+-//#define CONFIG_MAX_MEM_MAPPED       (0x40000000u - DRAM_RSV_SIZE)
+-#define CONFIG_MAX_MEM_MAPPED       (0x80000000u - DRAM_RSV_SIZE)
++
++#if CONFIG_TARGET_VKCMG2LC_1
++# define CONFIG_MAX_MEM_MAPPED       (0x40000000u - DRAM_RSV_SIZE)
++#else
++# define CONFIG_MAX_MEM_MAPPED       (0x80000000u - DRAM_RSV_SIZE)
++#endif
+ 
+ #define CONFIG_SYS_MONITOR_BASE     0x00000000
+ #define CONFIG_SYS_MONITOR_LEN      (1 * 1024 * 1024)
+-- 
+2.34.1
+
