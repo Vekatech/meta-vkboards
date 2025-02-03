@@ -1,0 +1,176 @@
+From 2b631daead7f332a5bf72a6c084aa1819da125b5 Mon Sep 17 00:00:00 2001
+From: dtodoroff <d.todorov@vekatech.com>
+Date: Fri, 24 Jan 2025 17:17:29 +0200
+Subject: [PATCH 24/24] add overlay with lcd power control for vkrzg2l
+
+
+diff --git a/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/Makefile b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/Makefile
+index 944cf4f877a0..cf22286e6205 100644
+--- a/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/Makefile
++++ b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/Makefile
+@@ -9,6 +9,8 @@ dtb-y += vkrz-dsi-av_disp2.dtbo
+ dtb-y += vkrz-dsi-hdmi.dtbo
+ dtb-y += vkrz-dsi-kd070hdfia030.dtbo
+ dtb-y += vkrz-dsi-kd101wxfid045.dtbo
++dtb-y += vkrz-dsi-kd101wxfid045-pwr.dtbo
++dtb-y += vkrz-dsi-kd101wxfid045-ena.dtbo
+ dtb-y += vkrz-dsi-vklcd-ee0700.dtbo
+ dtb-y += vkrz-dsi-vklcd07.dtbo
+ dtb-y += vkrz-exp-pwm0.dtbo
+diff --git a/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-dsi-kd101wxfid045-ena.dts b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-dsi-kd101wxfid045-ena.dts
+new file mode 100644
+index 000000000000..0735f6696d0f
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-dsi-kd101wxfid045-ena.dts
+@@ -0,0 +1,71 @@
++/*
++ * Copyright 2025 Vekatech
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ */
++
++/dts-v1/;
++/plugin/;
++
++#include <dt-bindings/pinctrl/rzg2l-pinctrl.h>
++#include <dt-bindings/gpio/gpio.h>
++
++&du {
++	status = "okay";
++};
++
++&dsi0 {
++	status = "okay";
++	ports {
++		port@1 {
++			dsi0_out: endpoint {
++				remote-endpoint = <&panel_in>;
++			};
++		};
++	};
++};
++
++&mipi_panel {
++	status = "okay";
++	compatible = "vekatech,vklcd-kd101wxfid045","fitipower,ek79202d";
++
++	enable-gpios = <&pinctrl RZG2L_GPIO(43, 3) GPIO_ACTIVE_HIGH>;
++	lcd-model = "kd101wxfid045";
++	dsi-lanes = <4>;
++	video-mode = <2>;
++	port {
++		panel_in: endpoint {
++			remote-endpoint = <&dsi0_out>;
++		};
++	};
++};
++
++&gpt5 {
++	status = "okay";
++};
++
++&backlight {
++	status = "okay";
++};
++
++&pinctrl {
++	hdmi-rst-hog {
++		gpio-hog;
++		gpios = <RZG2L_GPIO(42, 0) GPIO_ACTIVE_HIGH>;
++		output-low;
++		line-name = "hdmi_rst";
++	};
++};
++
++&ft5626 {
++	status = "okay";
++	reset-gpios = <&pinctrl RZG2L_GPIO(43, 1) GPIO_ACTIVE_LOW>;
++};
+diff --git a/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-dsi-kd101wxfid045-pwr.dts b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-dsi-kd101wxfid045-pwr.dts
+new file mode 100644
+index 000000000000..11bf693459b5
+--- /dev/null
++++ b/arch/arm64/boot/dts/renesas/overlays-vkrzg2l/vkrz-dsi-kd101wxfid045-pwr.dts
+@@ -0,0 +1,71 @@
++/*
++ * Copyright 2025 Vekatech
++ *
++ * This program is free software; you can redistribute it and/or
++ * modify it under the terms of the GNU General Public License
++ * as published by the Free Software Foundation; either version 2
++ * of the License, or (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
++ * GNU General Public License for more details.
++ */
++
++/dts-v1/;
++/plugin/;
++
++#include <dt-bindings/pinctrl/rzg2l-pinctrl.h>
++#include <dt-bindings/gpio/gpio.h>
++
++&du {
++	status = "okay";
++};
++
++&dsi0 {
++	status = "okay";
++	ports {
++		port@1 {
++			dsi0_out: endpoint {
++				remote-endpoint = <&panel_in>;
++			};
++		};
++	};
++};
++
++&mipi_panel {
++	status = "okay";
++	compatible = "vekatech,vklcd-kd101wxfid045","fitipower,ek79202d";
++
++	power-gpios = <&pinctrl RZG2L_GPIO(43, 3) GPIO_ACTIVE_HIGH>;
++	lcd-model = "kd101wxfid045";
++	dsi-lanes = <4>;
++	video-mode = <2>;
++	port {
++		panel_in: endpoint {
++			remote-endpoint = <&dsi0_out>;
++		};
++	};
++};
++
++&gpt5 {
++	status = "okay";
++};
++
++&backlight {
++	status = "okay";
++};
++
++&pinctrl {
++	hdmi-rst-hog {
++		gpio-hog;
++		gpios = <RZG2L_GPIO(42, 0) GPIO_ACTIVE_HIGH>;
++		output-low;
++		line-name = "hdmi_rst";
++	};
++};
++
++&ft5626 {
++	status = "okay";
++	reset-gpios = <&pinctrl RZG2L_GPIO(43, 1) GPIO_ACTIVE_LOW>;
++};
+-- 
+2.34.1
+

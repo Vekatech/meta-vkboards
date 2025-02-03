@@ -1,0 +1,35 @@
+From c53a9c55bfd1fdd77358e52393a6d89ca2992bb5 Mon Sep 17 00:00:00 2001
+From: dtodoroff <d.todorov@vekatech.com>
+Date: Mon, 20 Jan 2025 10:25:01 +0200
+Subject: [PATCH 21/22] DMA disabling for rzg2ul scif1 & scif2
+
+
+diff --git a/arch/arm64/boot/dts/renesas/r9a07g043.dtsi b/arch/arm64/boot/dts/renesas/r9a07g043.dtsi
+index 108468b959d3..ae21f35c3fae 100644
+--- a/arch/arm64/boot/dts/renesas/r9a07g043.dtsi
++++ b/arch/arm64/boot/dts/renesas/r9a07g043.dtsi
+@@ -371,8 +371,8 @@ scif1: serial@1004bc00 {
+ 					  "bri", "dri", "tei";
+ 			clocks = <&cpg CPG_MOD R9A07G043_SCIF1_CLK_PCK>;
+ 			clock-names = "fck";
+-			dmas = <&dmac 0x4e7d>, <&dmac 0x4e7e>;
+-			dma-names = "tx", "rx";
++			/*dmas = <&dmac 0x4e7d>, <&dmac 0x4e7e>;
++			dma-names = "tx", "rx";*/
+ 			power-domains = <&cpg>;
+ 			resets = <&cpg R9A07G043_SCIF1_RST_SYSTEM_N>;
+ 			status = "disabled";
+@@ -392,8 +392,8 @@ scif2: serial@1004c000 {
+ 					  "bri", "dri", "tei";
+ 			clocks = <&cpg CPG_MOD R9A07G043_SCIF2_CLK_PCK>;
+ 			clock-names = "fck";
+-			dmas = <&dmac 0x4e81>, <&dmac 0x4e82>;
+-			dma-names = "tx", "rx";
++			/*dmas = <&dmac 0x4e81>, <&dmac 0x4e82>;
++			dma-names = "tx", "rx";*/
+ 			power-domains = <&cpg>;
+ 			resets = <&cpg R9A07G043_SCIF2_RST_SYSTEM_N>;
+ 			status = "disabled";
+-- 
+2.34.1
+

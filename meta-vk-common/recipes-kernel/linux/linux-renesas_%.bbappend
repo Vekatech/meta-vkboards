@@ -35,13 +35,18 @@ SRC_URI_append_vk-d184280e = " \
 "
 
 SRC_URI_append_vkrzg2ul = " \
+	file://0001-RS-485-Half-Duplex-Communication-with-GPIO-pin-contr.patch \
 	file://0013-add-support-for-vkrzg2ul-and-its-overlays.patch \
+	file://0021-DMA-disabling-for-rzg2ul-scif1-scif2.patch \
+	file://0022-add-overlays-for-vkrzg2ul-board.patch \
 "
 
 SRC_URI_append_vkrzg2l = " \
 	file://0014-add-support-for-Lontium-LT8912B-DSI-HDMI-bridge.patch \
 	file://0015-add-support-for-vkrzg2l-board-and-its-overlays.patch \
 	file://0018-add-udmabuf-overlay-for-vkrzg2l-board.patch \
+	file://0023-add-support-for-enable-gpio-on-fitipower-ek79202d.patch \
+	file://0024-add-overlay-with-lcd-power-control-for-vkrzg2l.patch \
 "
 
 SRC_URI_append_vkrzv2l = " \
@@ -106,6 +111,7 @@ SRC_URI_append_vkrzg2lc = " \
 	file://PANEL_PANEL_FITIPOWER_EK79202D.cfg \
 	file://SND_SOC_DA7213.cfg \
 	file://SND_SEQ.cfg \
+	file://CIFS.cfg \
 	" 
 SRC_URI_append_vkcmg2lc = " \
 	file://BOARD_VKCMG2LC.cfg \
@@ -121,6 +127,9 @@ SRC_URI_append_vk-d184280e = " \
 
 SRC_URI_append_vkrzg2ul = " \
 	file://BOARD_VKRZG2UL.cfg \
+	file://SND_SOC_DA7213.cfg \
+	file://SND_SEQ.cfg \
+	file://CIFS.cfg \
 	" 
 
 # support to build dtbo

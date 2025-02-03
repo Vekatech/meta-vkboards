@@ -1,0 +1,125 @@
+From 674ef0203f513aabe44d14c86786a999afbeabf9 Mon Sep 17 00:00:00 2001
+From: dtodoroff <d.todorov@vekatech.com>
+Date: Fri, 24 Jan 2025 17:17:15 +0200
+Subject: [PATCH 23/24] add support for enable gpio on fitipower ek79202d
+
+
+diff --git a/drivers/gpu/drm/panel/panel-fitipower-ek79202d.c b/drivers/gpu/drm/panel/panel-fitipower-ek79202d.c
+index 5f4bb7d13536..01c900046854 100644
+--- a/drivers/gpu/drm/panel/panel-fitipower-ek79202d.c
++++ b/drivers/gpu/drm/panel/panel-fitipower-ek79202d.c
+@@ -42,8 +42,8 @@ struct ek79202d {
+ 	const struct ek79202d_desc* desc;
+ 	//struct backlight_device* backlight;
+ 	struct regulator* vdd;
+-	//	struct gpio_desc *enable_gpio;
+-	struct gpio_desc* reset_gpio;
++	//	struct gpio_desc *power_gpio;
++	//struct gpio_desc* reset_gpio;
+ 	struct gpio_desc* enable_gpio;
+ };
+ 
+@@ -154,21 +154,23 @@ static int ek79202d_prepare(struct drm_panel* panel) {
+ 	unsigned int i;
+ 	int ret;
+ 
++	dev_dbg(&ctx->dsi->dev,"%s\n",__func__);
++
+ 	ret = regulator_enable(ctx->vdd);
+ 	if (ret) {
+ 		dev_err(&dsi->dev, "ek79202d_prepare failed %d(%s)\n", ret, errname(ret));
+ 		return ret;
+ 	}
+ 
+-	gpiod_set_value_cansleep(ctx->reset_gpio, 0);
+-	msleep(1);
+-
+-	gpiod_set_value_cansleep(ctx->reset_gpio, 1);
+-	msleep(10);
+-
+-	gpiod_set_value_cansleep(ctx->reset_gpio, 0);
+-	msleep(120);
+-
++//	gpiod_set_value_cansleep(ctx->reset_gpio, 0);
++//	msleep(1);
++//
++//	gpiod_set_value_cansleep(ctx->reset_gpio, 1);
++//	msleep(10);
++//
++//	gpiod_set_value_cansleep(ctx->reset_gpio, 0);
++//	msleep(120);
++//
+ 	// Must change to Low Power Mode to send initialization code
+ 	dsi->mode_flags |= MIPI_DSI_MODE_LPM;
+ 
+@@ -233,8 +235,9 @@ static int ek79202d_unprepare(struct drm_panel* panel) {
+ 		dev_err(panel->dev, "failed to enter sleep mode: %d\n", ret);
+ 
+ 	msleep(120);
++
++	gpiod_set_value_cansleep(ctx->enable_gpio, 0);
+ 	regulator_disable(ctx->vdd);
+-	gpiod_set_value_cansleep(ctx->reset_gpio, 1);
+ 	return 0;
+ }
+ 
+@@ -319,7 +322,8 @@ static int ek79202d_dsi_probe(struct mipi_dsi_device* dsi) {
+ 	struct ek79202d* ctx;
+ 	int ret;
+ 	u32 video_mode, dsi_lanes;
+-	dev_dbg(&dsi->dev, "ek79202d_dsi_probe()\n");
++
++	dev_dbg(&dsi->dev,"%s\n",__func__);
+ 
+ 	ctx = devm_kzalloc(&dsi->dev, sizeof(*ctx), GFP_KERNEL);
+ 	if (!ctx) {
+@@ -335,25 +339,31 @@ static int ek79202d_dsi_probe(struct mipi_dsi_device* dsi) {
+ 	ctx->panel.dev = &dsi->dev;
+ 	ctx->panel.funcs = &ek79202d_funcs;
+ 
+-	ctx->vdd = devm_regulator_get(&dsi->dev, "vdd");
++	ctx->vdd = devm_regulator_get(&dsi->dev, "power");
+ 	if (IS_ERR(ctx->vdd)) {
+-		dev_err(&dsi->dev, "Couldn't get vdd regulator\n");
+-		return PTR_ERR(ctx->vdd);
++		ret = PTR_ERR(ctx->vdd);
++		if (ret != -EPROBE_DEFER)
++			dev_err(&dsi->dev, "Couldn't get vdd regulator: %d\n", ret);
++		return ret;
+ 	}
+ 	/* The enable GPIO is optional, this pin is MIPI DSI/HDMI switch select input. */
+-	ctx->enable_gpio = devm_gpiod_get_optional(&dsi->dev, "switch", GPIOD_OUT_HIGH);
+-	if (IS_ERR_OR_NULL(ctx->enable_gpio)) {
+-		dev_dbg(&dsi->dev, "Couldn't get our switch GPIO\n");
+-		ctx->enable_gpio = NULL;
+-	}
+-	gpiod_set_value(ctx->enable_gpio, 1);
+-
+-	ctx->reset_gpio = devm_gpiod_get(&dsi->dev, "reset", GPIOD_OUT_LOW);
+-	if (IS_ERR(ctx->reset_gpio)) {
+-		dev_err(&dsi->dev, "Couldn't get our reset GPIO\n");
+-		return PTR_ERR(ctx->reset_gpio);
++	ctx->enable_gpio = devm_gpiod_get_optional(&dsi->dev, "enable", GPIOD_OUT_LOW);
++	if (IS_ERR(ctx->enable_gpio)) {
++		ret = PTR_ERR(ctx->enable_gpio);
++		dev_err(&dsi->dev, "Failed to request GPIO enable pin, error %d\n", ret);
++		return ret;
+ 	}
+-
++	gpiod_set_value_cansleep(ctx->enable_gpio, 0);
++	msleep(50);
++	gpiod_set_value_cansleep(ctx->enable_gpio, 1);
++	msleep(400);
++
++//	ctx->reset_gpio = devm_gpiod_get(&dsi->dev, "reset", GPIOD_OUT_LOW);
++//	if (IS_ERR(ctx->reset_gpio)) {
++//		dev_err(&dsi->dev, "Couldn't get our reset GPIO\n");
++//		return PTR_ERR(ctx->reset_gpio);
++//	}
++//
+ 	ret = drm_panel_of_backlight(&ctx->panel);
+ 	if (ret) {
+ 		dev_err(&dsi->dev, "Couldn't get our backlight(%d)\n", ret);
+-- 
+2.34.1
+

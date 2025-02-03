@@ -25,3 +25,12 @@ IMAGE_INSTALL_append_vkcmg2lc= " \
         libjpeg-turbo-dev \
         kernel-module-udmabuf \
         "
+
+IMAGE_INSTALL_append_vkrzg2ul = " \
+        kernel-devsrc \
+        kernel-modules \
+        kernel-dev \
+        libjpeg-turbo-dev \
+        kernel-module-udmabuf \
+        "
+
