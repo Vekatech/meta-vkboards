@@ -1,0 +1,94 @@
+From d60b98f5f5d0ab5ba92429de8ac3fdc8ea91ae52 Mon Sep 17 00:00:00 2001
+From: sbb <stanimir@x-cas.eu>
+Date: Mon, 17 Feb 2025 00:56:30 +0200
+Subject: [PATCH] feat(python): add DRP support in Python bindings
+
+- Exposed DRP_Activate, DRP_ConflictNotification to Python bindings
+
+diff --git a/modules/imgproc/include/opencv2/imgproc.hpp b/modules/imgproc/include/opencv2/imgproc.hpp
+@@ -4693,6 +4693,22 @@ CV_EXPORTS_W double getFontScaleFromHeight(const int fontFace,
+                                            const int pixelHeight,
+                                            const int thickness = 1);
+
++/** @brief DRP_Activate contol.
++
++@param InputArray OCA_list - enable/disable array. 0 - disable, 1 - enable, 2 - not change
++@return 0 - success, -1 - error
++
++*/
++CV_EXPORTS_W int DRP_Activate(InputArray OCA_list);
++
++/** @brief DRP_ConflictNotification enable.
++
++@param Iint oca_conflict - 0 - enable, !0 - disable conflict notification
++
++*/
++CV_EXPORTS_W void DRP_ConflictNotification(int oca_conflict);
++
++
+ /** @brief Line iterator
+
+ The class is used to iterate over all the pixels on the raster line
+diff --git a/modules/imgproc/src/drp.cpp b/modules/imgproc/src/drp.cpp
+new file mode 100644
+index 0000000000..0b04b0e2f7
+--- /dev/null
++++ b/modules/imgproc/src/drp.cpp
+@@ -0,0 +1,44 @@
++#include "precomp.hpp"
++#include <rzv2ma_drp.h>
++#include <iostream>
++
++namespace cv {
++	/*****************************************************************
++	* Method Name   : DRP_Activate
++	* Description   : activate or inactivate opencva circuit function
++	* Arguments     : cv::InputArray OCA_list
++	* Return value  : DRP_NORMAL_END if succeeded
++	*                 DRP_NOT_EXECUTE otherwise
++	******************************************************************/
++	int DRP_Activate(cv::InputArray OCA_list) {
++		cv::Mat mat = OCA_list.getMat();
++
++		// Ensure it's the correct type (unsigned long = CV_32S)
++		if (mat.type() != CV_32S) {
++			return -2;
++		}
++#if 0
++		std::cout << "*** OCA_list col: " << mat.cols << std::endl;
++		std::cout << "*** OCA_list rows: " << mat.rows << std::endl;
++		std::cout << "*** OCA_list total: " << mat.total() << std::endl;
++#endif
++		// Convert cv::UMat to unsigned long* (assuming single-row matrix)
++		unsigned long* OCA_ptr = reinterpret_cast<unsigned long*>(mat.data);
++#if 0
++		for(int i = 0; i < 16; i++) {
++			std::cout << "OCA_list[" << i << "] = " << OCA_ptr[i] << std::endl;
++		}
++#endif
++		return OCA_Activate(OCA_ptr);
++	}
++
++	/*****************************************************************
++	* Method Name   : DRP_ConflictNotification
++	* Description   : set conflict ation setting(CV_Error or normal opencv exec)
++	* Arguments     : int OCA_list
++	* Return value  : void
++	******************************************************************/
++	void DRP_ConflictNotification(int oca_conflict) {
++		OCA_ConflictNotification(oca_conflict);
++	}
++}  // namespace cv
+diff --git a/modules/js/src/embindgen.py b/modules/js/src/embindgen.py
+index 03dc0a65ae..db26993aae 100644
+--- a/modules/js/src/embindgen.py
++++ b/modules/js/src/embindgen.py
+@@ -112,7 +112,7 @@ imgproc = {'': ['Canny', 'GaussianBlur', 'Laplacian', 'HoughLines', 'HoughLinesP
+                 'goodFeaturesToTrack','grabCut','initUndistortRectifyMap', 'integral','integral2', 'isContourConvex', 'line', \
+                 'matchShapes', 'matchTemplate','medianBlur', 'minAreaRect', 'minEnclosingCircle', 'moments', 'morphologyEx', \
+                 'pointPolygonTest', 'putText','pyrDown','pyrUp','rectangle','remap', 'resize','sepFilter2D','threshold', \
+-                'undistort','warpAffine','warpPerspective','watershed'],
++                'undistort','warpAffine','warpPerspective','watershed','DRP_Activate','DRP_ConflictNotification'],
+            'CLAHE': ['apply', 'collectGarbage', 'getClipLimit', 'getTilesGridSize', 'setClipLimit', 'setTilesGridSize']}
+
+ objdetect = {'': ['groupRectangles'],
