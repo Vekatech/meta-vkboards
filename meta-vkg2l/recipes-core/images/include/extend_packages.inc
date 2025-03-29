@@ -7,6 +7,7 @@ COMPATIBLE_MACHINE_vkrzg2ul = "vkrzg2ul"
 
 IMAGE_INSTALL_append = " \
         libgpiod \
+		device-tree-vkboards \
         "
 
 IMAGE_INSTALL_append_vkrzg2lc = " \
@@ -24,7 +25,6 @@ IMAGE_INSTALL_append_vk-d184280e = " \
 IMAGE_INSTALL_append_vkcmg2lc= " \
         libjpeg-turbo-dev \
         kernel-module-udmabuf \
-		device-tree-vkcmg2lc \
         "
 
 IMAGE_INSTALL_append_vkrzg2ul = " \
