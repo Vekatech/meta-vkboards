@@ -1,0 +1,37 @@
+/*
+ * Copyright 2024 Vekatech
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/pinctrl/rzg2l-pinctrl.h>
+
+&pinctrl {
+	scif2_pins: scif2 {
+		pinmux = <RZG2L_PORT_PINMUX(42, 0, 4)>, /* TxD */
+			 <RZG2L_PORT_PINMUX(42, 1, 4)>, /* RxD */
+			 <RZG2L_PORT_PINMUX(42, 3, 4)>, /* CTS# */
+			 <RZG2L_PORT_PINMUX(42, 4, 4)>; /* RTS# */
+	};
+};
+
+&scif2 {
+	status = "okay";
+
+	pinctrl-0 = <&scif2_pins>;
+	pinctrl-names = "default";
+	uart-has-rtscts;
+};
+
+

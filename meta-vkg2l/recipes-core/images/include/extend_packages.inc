@@ -24,6 +24,7 @@ IMAGE_INSTALL_append_vk-d184280e = " \
 IMAGE_INSTALL_append_vkcmg2lc= " \
         libjpeg-turbo-dev \
         kernel-module-udmabuf \
+		device-tree-vkcmg2lc \
         "
 
 IMAGE_INSTALL_append_vkrzg2ul = " \

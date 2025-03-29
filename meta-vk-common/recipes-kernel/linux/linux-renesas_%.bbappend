@@ -10,22 +10,14 @@ SRCREV = "7b2ceeb26afb39089e42d55c958f9c0212c07ac1"
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
 SRC_URI += " \
-	file://0002-add-dtb-overlay-support.patch \
 	file://0003-update-some-Macronix-device-names-against-jedec-ID.patch \
 	file://0004-disable-energy-efficiency-for-RTL8211F-leds.patch \
 	file://0005-add-support-for-Fitipower-EK79007AD-and-EK79202D-bas.patch \
-	file://0006-add-vkboards-config-options-in-build-system.patch \
-	file://0007-add-support-vkboards-and-their-overlays-in-build-sys.patch \
 "
 
 SRC_URI_append_vkrzg2lc = " \
 	file://0008-add-support-for-vkrzg2lc-board-and-its-overlays.patch \
 	file://0012-vkrzg2lc-tune-qspi-flash-partitions.patch \
-"
-
-SRC_URI_append_vkcmg2lc = " \
-	file://0009-add-support-for-vkcmg2lc-carrier-board-and-its-overl.patch \
-	file://0010-vkcmg2lc-carrier-add-support-for-spi-and-1GB-version.patch \
 "
 
 SRC_URI_append_vk-d184280e = " \
@@ -90,7 +82,7 @@ SRC_URI_append_vkrzg2l = " \
 	file://LONTIUM_LT8912B.cfg \
 	file://SND_SOC_DA7213.cfg \
 	file://SND_SEQ.cfg \
-	" 
+	"
 
 SRC_URI_append_vkrzv2l = " \
 	file://BOARD_VKRZV2L.cfg \
@@ -112,7 +104,7 @@ SRC_URI_append_vkrzg2lc = " \
 	file://SND_SOC_DA7213.cfg \
 	file://SND_SEQ.cfg \
 	file://CIFS.cfg \
-	" 
+	"
 SRC_URI_append_vkcmg2lc = " \
 	file://BOARD_VKCMG2LC.cfg \
 	file://GT911.cfg \
@@ -120,45 +112,16 @@ SRC_URI_append_vkcmg2lc = " \
 	file://PANEL_PANEL_FITIPOWER_EK79202D.cfg \
 	file://SND_SOC_MAX9867.cfg \
 	file://SND_SEQ.cfg \
-	" 
+	"
 SRC_URI_append_vk-d184280e = " \
 	file://BOARD_VK_D184280E.cfg \
-	" 
+	"
 
 SRC_URI_append_vkrzg2ul = " \
 	file://BOARD_VKRZG2UL.cfg \
 	file://SND_SOC_DA7213.cfg \
 	file://SND_SEQ.cfg \
 	file://CIFS.cfg \
-	" 
+	"
 
-# support to build dtbo
-KERNEL_DTC_FLAGS = "-@"
-KERNEL_DEVICETREE_OVERLAY ?= ""
-
-do_compile_prepend() {
-    if [ -n "${KERNEL_DTC_FLAGS}" ]; then
-       export DTC_FLAGS="${KERNEL_DTC_FLAGS}"
-    fi
-}
-
-do_compile_append() {
-    for dtbf in ${KERNEL_DEVICETREE_OVERLAY}; do
-        dtb=`normalize_dtb "$dtbf"`
-        oe_runmake $dtb CC="${KERNEL_CC} $cc_extra " LD="${KERNEL_LD}" ${KERNEL_EXTRA_ARGS}
-    done
-}
-
-do_deploy_append(){
-   install -d ${DEPLOYDIR}/overlays
-   cp ${B}/arch/arm64/boot/dts/renesas/overlays-"${MACHINE}"/* ${DEPLOYDIR}/overlays
-}
-
-do_recompile_dtb() {
-    if [ -n "${KERNEL_DTC_FLAGS}" ]; then
-       export DTC_FLAGS="${KERNEL_DTC_FLAGS}"
-    fi
-    cd ${B}
-    oe_runmake renesas/"${MACHINE}".dtb
-}
-
+KERNEL_DEVICETREE = ""
