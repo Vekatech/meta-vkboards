@@ -31,17 +31,21 @@ do_compile() {
         local output_file=$2
 
         # Preprocess the DTS file with cpp
-        local preprocessed_file="${output_file}.preprocessed"
-        cpp -nostdinc -undef -x assembler-with-cpp \
+        local preprocessed_file="${output_file}.tmp"
+        cpp -nostdinc -undef -D__DTS__ -x assembler-with-cpp \
             -I ${DTS_BASE} \
             -I ${DTS_BASE}/renesas \
             -I ${STAGING_KERNEL_DIR}/include \
             -I ${S}/vkcmg2lc \
             ${input_file} > ${preprocessed_file}
 
-		dtc -@ -I dts -O dtb \
+		dtc -@ -I dts -O dtb -b 0 \
+			-Wnode_name_chars_strict \
+			-Wproperty_name_chars_strict \
 			-o ${output_file} \
 			${preprocessed_file}
+
+		#rm -f ${preprocessed_file}
     }
 
     # Compile standard DTBs (without -@)

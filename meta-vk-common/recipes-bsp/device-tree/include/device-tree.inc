@@ -5,6 +5,6 @@ SRC_URI:vkcmg2lc = " \
         'vkrz-cm33.dts', 'vkrz-cm-scif2.dts', 'vkrz-cm-usb1.dts', \
         'vkrz-csi-ov5645.dts', 'vkrz-dsi-kd070hdfia030.dts', \
         'vkrz-dsi-kd101wxfid045.dts', 'vkrz-qspi-mx25l51245g.dts', \
-        'vkrz-udma.dts' \
+        'vkrz-udma.dts', 'vkrz-sdhi1.dts' \
     ]])} \
 "

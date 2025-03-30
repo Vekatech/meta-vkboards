@@ -8,6 +8,7 @@ COMPATIBLE_MACHINE_vkrzg2ul = "vkrzg2ul"
 IMAGE_INSTALL_append = " \
         libgpiod \
 		device-tree-vkboards \
+		${WIFI_LIST} \
         "
 
 IMAGE_INSTALL_append_vkrzg2lc = " \

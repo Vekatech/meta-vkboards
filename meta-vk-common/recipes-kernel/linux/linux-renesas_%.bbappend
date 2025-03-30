@@ -69,6 +69,7 @@ SRC_URI += " \
 	file://USB_MODEM.cfg \
 	file://USB_WL.cfg \
 	file://BT.cfg \
+	file://overlays.cfg \
 	"
 
 SRC_URI += " ${@oe.utils.conditional("CONFIG_HASSI", "1", " file://docker.cfg file://apparmor.cfg ", "", d)} "
