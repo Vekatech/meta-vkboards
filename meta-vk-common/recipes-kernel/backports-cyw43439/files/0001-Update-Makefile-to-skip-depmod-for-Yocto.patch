@@ -1,0 +1,31 @@
+From 0148f5d3a11b7a735f577c3a3ae17e9755bf7b2f Mon Sep 17 00:00:00 2001
+From: Stanimir Bonev <stanimir@x-cas.eu>
+Date: Tue, 1 Apr 2025 18:35:16 +0300
+Subject: [PATCH] Update Makefile to skip depmod for Yocto
+
+---
+ Makefile.real | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/Makefile.real b/Makefile.real
+index 6550802..23ce708 100644
+--- a/Makefile.real
++++ b/Makefile.real
+@@ -95,7 +95,7 @@ install: modules
+ 	@./scripts/blacklist.sh $(KLIB)/ $(KLIB)/$(KMODDIR)
+ 	@./scripts/compress_modules.sh $(KLIB)/$(KMODDIR)
+ 	@./scripts/check_depmod.sh
+-	@/sbin/depmod -a
++	@echo "Skipping depmod for Yocto (handled elsewhere)"
+ 	@./scripts/update-initramfs.sh $(KLIB)
+ 	@echo
+ 	@echo Your backported driver modules should be installed now.
+@@ -108,7 +108,7 @@ modules_install: install
+ .PHONY: uninstall
+ uninstall:
+ 	@./scripts/uninstall.sh
+-	@/sbin/depmod -a
++	@echo "Skipping depmod for Yocto (handled elsewhere)"
+ 	@./scripts/update-initramfs.sh $(KLIB)
+ 	@echo
+ 	@echo Your backported driver modules should be uninstalled now.
