@@ -46,6 +46,9 @@ SRC_URI_append_vkrzv2l = " \
 	file://0016-add-support-for-vkrzv2l-board-and-its-overlays.patch \
 	file://0019-vkrzv2l-adjust-isp_buf0-and-isp_work0-memory-regions.patch \
 "
+SRC_URI_append_vkcmg2lc = " \
+	file://0005-test.patch \
+"
 
 SRC_URI_append_vkrzv2l = " ${@oe.utils.conditional("CONFIG_OPENCVA", "1", " file://0020-modified-devicetree-for-opencva-drv-vkrzv2l.patch ", "", d)} "
 
@@ -75,7 +78,6 @@ SRC_URI += " \
 SRC_URI += " ${@oe.utils.conditional("CONFIG_HASSI", "1", " file://docker.cfg file://apparmor.cfg ", "", d)} "
 
 SRC_URI_append_vkrzg2l = " \
-	file://BOARD_VKRZG2L.cfg \
 	file://GT911.cfg \
 	file://FT5X06.cfg \
 	file://PANEL_ILITEK_ILI9881C.cfg \
@@ -83,10 +85,10 @@ SRC_URI_append_vkrzg2l = " \
 	file://LONTIUM_LT8912B.cfg \
 	file://SND_SOC_DA7213.cfg \
 	file://SND_SEQ.cfg \
+	file://BOARD_VKRZG2L.cfg \
 	"
 
 SRC_URI_append_vkrzv2l = " \
-	file://BOARD_VKRZV2L.cfg \
 	file://GT911.cfg \
 	file://FT5X06.cfg \
 	file://PANEL_ILITEK_ILI9881C.cfg \
@@ -94,10 +96,10 @@ SRC_URI_append_vkrzv2l = " \
 	file://LONTIUM_LT8912B.cfg \
 	file://SND_SOC_DA7213.cfg \
 	file://SND_SEQ.cfg \
+	file://BOARD_VKRZV2L.cfg \
 	"
 
 SRC_URI_append_vkrzg2lc = " \
-	file://BOARD_VKRZG2LC.cfg \
 	file://GT911.cfg \
 	file://FT5X06.cfg \
 	file://PANEL_ILITEK_ILI9881C.cfg \
@@ -105,15 +107,18 @@ SRC_URI_append_vkrzg2lc = " \
 	file://SND_SOC_DA7213.cfg \
 	file://SND_SEQ.cfg \
 	file://CIFS.cfg \
+	file://BOARD_VKRZG2LC.cfg \
 	"
+
 SRC_URI_append_vkcmg2lc = " \
-	file://BOARD_VKCMG2LC.cfg \
 	file://GT911.cfg \
 	file://FT5X06.cfg \
 	file://PANEL_PANEL_FITIPOWER_EK79202D.cfg \
 	file://SND_SOC_MAX9867.cfg \
 	file://SND_SEQ.cfg \
+	file://BOARD_VKCMG2LC.cfg \
 	"
+
 SRC_URI_append_vk-d184280e = " \
 	file://BOARD_VK_D184280E.cfg \
 	"
