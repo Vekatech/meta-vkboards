@@ -8,12 +8,11 @@ COMPATIBLE_MACHINE_vkrzg2ul = "vkrzg2ul"
 IMAGE_INSTALL_append = " \
         libgpiod \
 		device-tree-vkboards \
-		${WIFI_LIST} \
+        kernel-modules \
         "
 
 IMAGE_INSTALL_append_vkrzg2lc = " \
         kernel-devsrc \
-        kernel-modules \
         kernel-dev \
         libjpeg-turbo-dev \
         kernel-module-udmabuf \
@@ -30,7 +29,6 @@ IMAGE_INSTALL_append_vkcmg2lc= " \
 
 IMAGE_INSTALL_append_vkrzg2ul = " \
         kernel-devsrc \
-        kernel-modules \
         kernel-dev \
         libjpeg-turbo-dev \
         kernel-module-udmabuf \
