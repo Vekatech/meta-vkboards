@@ -39,10 +39,12 @@ do_install() {
 
 	ln -sf cyfmac43439-sdio.bin ${D}/lib/firmware/cypress/cyfmac43439-sdio.${COMPATIBLE_STRING}.bin
 	ln -sf cyfmac43439-sdio.txt ${D}/lib/firmware/cypress/cyfmac43439-sdio.${COMPATIBLE_STRING}.txt
+
+	ln -sf CYW4343A2.hcd ${D}/lib/firmware/brcm/BCM.hcd
 }
 
-FILES:${PN} += "/lib/firmware/cypress /lib/firmware/brcm"
+FILES:${PN} += "${nonarch_base_libdir}/firmware/cypress ${nonarch_base_libdir}/firmware/brcm"
 
 RPROVIDES:${PN} += "linux-firmware-brcmfmac43439-sdio"
-RREPLACES:${PN} += "linux-firmware-brcmfmac43439-sdio"
-RCONFLICTS:${PN} += "linux-firmware-brcmfmac43439-sdio"
+RREPLACES:${PN} += "${RPROVIDES:${PN}}"
+RCONFLICTS:${PN} += "${RPROVIDES:${PN}}"
