@@ -9,20 +9,15 @@ LIC_FILES_CHKSUM = "file://COPYING;md5=6bc538ed5bd9a7fc9398086aedcd7e46"
 
 SRC_URI =  " \
     git://github.com/murata-wireless/cyw-fmac;protocol=http;branch=imx-kirkstone-indrik \
-    file://0001-Update-Makefile-to-skip-depmod-for-Yocto.patch;apply=yes \
+	file://0001-kernel_change_for_fmac_log_string.patch \
+    file://0002-Update-Makefile-to-skip-depmod-for-Yocto.patch;apply=yes \
 "
 
 SRCREV = "4c5275d220ef9cc28b341bd1f9da5b02c76a5b89"
 
 S = "${WORKDIR}/git"
 
-# EXTRA_OEMAKE = "KLIB_BUILD=${STAGING_KERNEL_DIR} KLIB=${D} DESTDIR=${D}"
-EXTRA_OEMAKE = " \
-    KLIB_BUILD=${STAGING_KERNEL_DIR} \
-    KLIB=${D}/lib/modules/${KERNEL_VERSION} \
-    INSTALL_MOD_PATH=${D} \
-    DEPMOD=true \
-"
+EXTRA_OEMAKE = "KLIB_BUILD=${STAGING_KERNEL_DIR} KLIB=${D} DESTDIR=${D}"
 
 DEPENDS += "virtual/kernel bison-native flex-native"
 inherit module-base
@@ -42,17 +37,26 @@ FILES:${PN} += "${nonarch_base_libdir}/udev \
 				${nonarch_base_libdir} \
                "
 
-do_configure() {
-    unset CFLAGS CPPFLAGS CXXFLAGS LDFLAGS
-    oe_runmake clean
-}
-
 do_compile() {
     unset CFLAGS CPPFLAGS CXXFLAGS LDFLAGS
     oe_runmake
 }
 
+# do_install() {
+# 	unset CFLAGS CPPFLAGS CXXFLAGS LDFLAGS
+# 	oe_runmake DEPMOD=echo INSTALL_MOD_PATH="${D}" \
+# 	           KERNEL_SRC=${STAGING_KERNEL_DIR} \
+# 	           CC="${KERNEL_CC}" LD="${KERNEL_LD}" \
+# 	           modules_install
+# 	rm ${STAGING_KERNEL_DIR}/.config
+# }
+
 do_install() {
     unset CFLAGS CPPFLAGS CXXFLAGS LDFLAGS
     oe_runmake modules_install
+	rm ${STAGING_KERNEL_DIR}/.config
 }
+
+RPROVIDES:${PN} = "kernel-module-compat kernel-module-cfg80211-${KERNEL_VERSION} kernel-module-brcmfmac-${KERNEL_VERSION} kernel-module-brcmutil-${KERNEL_VERSION}"
+RREPLACES:${PN} = "${RPROVIDES:${PN}}"
+RCONFLICTS:${PN} = "${RPROVIDES:${PN}}"
