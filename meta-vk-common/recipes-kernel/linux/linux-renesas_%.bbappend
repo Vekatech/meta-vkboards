@@ -46,9 +46,6 @@ SRC_URI_append_vkrzv2l = " \
 	file://0016-add-support-for-vkrzv2l-board-and-its-overlays.patch \
 	file://0019-vkrzv2l-adjust-isp_buf0-and-isp_work0-memory-regions.patch \
 "
-SRC_URI_append_vkcmg2lc = " \
-	file://0005-test.patch \
-"
 
 SRC_URI_append_vkrzv2l = " ${@oe.utils.conditional("CONFIG_OPENCVA", "1", " file://0020-modified-devicetree-for-opencva-drv-vkrzv2l.patch ", "", d)} "
 

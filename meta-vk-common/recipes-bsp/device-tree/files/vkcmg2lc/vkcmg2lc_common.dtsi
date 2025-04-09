@@ -203,34 +203,6 @@
 		};
 	};
 
-	sound_card2: sound-card2 {
-		compatible = "simple-audio-card";
-		simple-audio-card,bitclock-master = <&dailink_master2>;
-		simple-audio-card,format = "i2s";
-		simple-audio-card,frame-master = <&dailink_master2>;
-		simple-audio-card,name = "audio-bt";
-		simple-audio-card,routing =
-			"LAUX", "Line In",
-			"RAUX", "Line In";
-		simple-audio-card,widgets =
-			"Line Out", "Line Out",
-			"Line", "Line In";
-
-		dailink_master2: simple-audio-card,codec {
-			sound-dai = <&codec_bt>;
-		};
-
-		simple-audio-card,cpu {
-			sound-dai = <&ssi0>;
-		};
-	};
-
-	codec_bt: codec_bt {
-		 compatible = "linux,bt-sco";
-		 #sound-dai-cells = <0>;
-		 status = "okay";
-	};
-
 	vccq_sdhi1: regulator-vccq-sdhi1 {
 		compatible = "regulator-gpio";
 		regulator-name = "SDHI1 VccQ";
