@@ -36,7 +36,7 @@ do_compile() {
             -I ${DTS_BASE} \
             -I ${DTS_BASE}/renesas \
             -I ${STAGING_KERNEL_DIR}/include \
-            -I ${S}/vkcmg2lc \
+            -I ${S}/${MACHINE} \
             ${input_file} > ${preprocessed_file}
 
 		dtc -@ -I dts -O dtb -b 0 \
@@ -49,16 +49,16 @@ do_compile() {
     }
 
     # Compile standard DTBs (without -@)
-    find ${S}/vkcmg2lc -name '*.dts' | grep -v overlays | while read -r dts; do
+    find ${S}/${MACHINE} -name '*.dts' | grep -v overlays | while read -r dts; do
         name=$(basename ${dts} .dts)
         preprocess_and_compile_dts "${dts}" "${DTB_OUTPUT_DIR}/${name}.dtb"
-    done
+	done
 
     # Compile overlays (DTBOs, with -@)
-    find ${S}/vkcmg2lc/overlays-vkcmg2lc -name '*.dts' | while read -r overlay; do
-        name=$(basename ${overlay} .dts)
+    find ${S}/${MACHINE}/overlays-${MACHINE} -name '*.dts' | while read -r overlay; do
+		name=$(basename ${overlay} .dts)
         preprocess_and_compile_dts "${overlay}" "${OVERLAY_OUTPUT_DIR}/${name}.dtbo"
-    done
+	done
 }
 
 do_install() {
