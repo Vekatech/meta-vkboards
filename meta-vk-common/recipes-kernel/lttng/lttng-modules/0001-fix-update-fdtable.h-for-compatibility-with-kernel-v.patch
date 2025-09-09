@@ -1,0 +1,24 @@
+From d7f1243add8d692b8a3d5986bcc1770359f743fe Mon Sep 17 00:00:00 2001
+From: Stanimir Bonev <stanimir@x-cas.eu>
+Date: Mon, 8 Sep 2025 23:49:36 +0300
+Subject: [PATCH] fix: update fdtable.h for compatibility with kernel versions
+ 5.10.137 to 5.11.0
+
+---
+ wrapper/fdtable.h | 3 ++-
+ 1 file changed, 2 insertions(+), 1 deletion(-)
+
+diff --git a/wrapper/fdtable.h b/wrapper/fdtable.h
+index d768c10..be9ba1c 100644
+--- a/wrapper/fdtable.h
++++ b/wrapper/fdtable.h
+@@ -12,7 +12,8 @@
+ #include <linux/fdtable.h>
+ #include <linux/sched.h>
+ 
+-#if (LTTNG_LINUX_VERSION_CODE >= LTTNG_KERNEL_VERSION(5,11,0))
++#if (LTTNG_LINUX_VERSION_CODE >= LTTNG_KERNEL_VERSION(5,11,0) \
++	|| LTTNG_KERNEL_RANGE(5,10,137, 5,11,0))
+ static inline
+ struct file *lttng_lookup_fd_rcu(unsigned int fd)
+ {
