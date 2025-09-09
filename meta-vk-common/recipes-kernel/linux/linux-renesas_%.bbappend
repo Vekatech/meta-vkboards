@@ -5,7 +5,8 @@ COMPATIBLE_MACHINE_vkcmg2lc = "vkcmg2lc"
 COMPATIBLE_MACHINE_vk-d184280e = "vk-d184280e"
 COMPATIBLE_MACHINE_vkrzg2ul = "vkrzg2ul"
 
-SRCREV = "7b2ceeb26afb39089e42d55c958f9c0212c07ac1"
+SRCREV = "b84076ccc441caa2e42749c4b1ada14ec17347cd"
+
 
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
