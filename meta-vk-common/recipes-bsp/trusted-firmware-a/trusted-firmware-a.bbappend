@@ -1,3 +1,7 @@
+LIC_FILES_CHKSUM = " \
+	file://${S}/docs/license.rst;md5=b2c740efedc159745b9b31f88ff03dde \
+"
+
 COMPATIBLE_MACHINE_vkrzg2l = "vkrzg2l"
 COMPATIBLE_MACHINE_vkrzv2l = "vkrzv2l"
 COMPATIBLE_MACHINE_vkrzg2lc = "vkrzg2lc"

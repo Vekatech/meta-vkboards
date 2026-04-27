@@ -5,8 +5,8 @@ COMPATIBLE_MACHINE_vkcmg2lc = "vkcmg2lc"
 COMPATIBLE_MACHINE_vk-d184280e = "vk-d184280e"
 COMPATIBLE_MACHINE_vkrzg2ul = "vkrzg2ul"
 
-SRCREV = "b84076ccc441caa2e42749c4b1ada14ec17347cd"
-
+SRCREV = "7b2ceeb26afb39089e42d55c958f9c0212c07ac1"
+SRCREV_vkrzg2lc = "e2055fbbd7d71b6b3f4793f615aff62ed16c5e77"
 
 FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
 
@@ -14,11 +14,6 @@ SRC_URI += " \
 	file://0003-update-some-Macronix-device-names-against-jedec-ID.patch \
 	file://0004-disable-energy-efficiency-for-RTL8211F-leds.patch \
 	file://0005-add-support-for-Fitipower-EK79007AD-and-EK79202D-bas.patch \
-"
-
-SRC_URI_append_vkrzg2lc = " \
-	file://0008-add-support-for-vkrzg2lc-board-and-its-overlays.patch \
-	file://0012-vkrzg2lc-tune-qspi-flash-partitions.patch \
 "
 
 SRC_URI_append_vk-d184280e = " \
