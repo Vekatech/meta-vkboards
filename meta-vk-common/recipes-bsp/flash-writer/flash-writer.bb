@@ -20,22 +20,8 @@ inherit deploy
 S = "${WORKDIR}/git"
 
 do_compile() {
-        if [ "${MACHINE}" = "vkcmg2lc" ]; then
-                BOARD="VKCMG2LC";
-	elif [ "${MACHINE}" = "vk-d184280e" ]; then
-		BOARD="VKCMG2LC";
-	elif [ "${MACHINE}" = "vkrzg2lc" ]; then
-		BOARD="VKRZG2LC";
-	elif [ "${MACHINE}" = "vkrzg2l" ]; then
-		BOARD="VKRZG2L";
-	elif [ "${MACHINE}" = "vkrzv2l" ]; then
-		BOARD="VKRZV2L";
-	elif [ "${MACHINE}" = "vkrzg2ul" ]; then
-		BOARD="VKRZG2UL";
-        fi
         cd ${S}
-
-	oe_runmake BOARD=${BOARD}
+	oe_runmake BOARD=${FLASH_WRITER_BOARD}
 }
 
 do_install[noexec] = "1"

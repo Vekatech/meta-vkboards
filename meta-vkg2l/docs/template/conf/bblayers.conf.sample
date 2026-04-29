@@ -5,6 +5,15 @@ POKY_BBLAYERS_CONF_VERSION = "2"
 BBPATH = "${TOPDIR}"
 BBFILES ?= ""
 
+QT_LAYER = "${@os.path.isdir("${TOPDIR}/../meta-qt5")}"
+RZ_FEATURE_CODEC = "${@os.path.isdir("${TOPDIR}/../meta-rz-features/meta-rz-codecs")}"
+RZ_FEATURE_GRAPHICS = "${@os.path.isdir("${TOPDIR}/../meta-rz-features/meta-rz-graphics")}"
+VIRTUALIZATION_LAYER = "${@os.path.isdir("${TOPDIR}/../meta-virtualization")}"
+
+RZ_FEATURE_MULTIOS = "${@os.path.isdir("${TOPDIR}/../meta-rz-features/meta-rz-multi-os/meta-rzg2l")}"
+RZ_FEATURE_HTML5 = "${@os.path.isdir("${TOPDIR}/../meta-browser/meta-chromium")}"
+
+
 BBLAYERS ?= " \
   ${TOPDIR}/../meta-gplv2 \
   ${TOPDIR}/../poky/meta \
@@ -17,5 +26,11 @@ BBLAYERS ?= " \
   ${TOPDIR}/../meta-openembedded/meta-oe \
   ${TOPDIR}/../meta-openembedded/meta-python \
   ${TOPDIR}/../meta-openembedded/meta-multimedia \
-  ${TOPDIR}/../meta-openembedded/meta-networking \
+  ${@'${TOPDIR}/../meta-qt5' if '${QT_LAYER}' == 'True' else ''} \
+  ${@'${TOPDIR}/../meta-rz-features/meta-rz-codecs' if '${RZ_FEATURE_CODEC}' == 'True' else ''} \
+  ${@'${TOPDIR}/../meta-rz-features/meta-rz-graphics' if '${RZ_FEATURE_GRAPHICS}' == 'True' else ''} \
+  ${@'${TOPDIR}/../meta-rz-features/meta-rz-multi-os/meta-rzg2l' if '${RZ_FEATURE_MULTIOS}' == 'True' else ''} \
+  ${@'${TOPDIR}/../meta-clang' if '${RZ_FEATURE_HTML5}' == 'True' else ''} \
+  ${@'${TOPDIR}/../meta-browser/meta-chromium' if '${RZ_FEATURE_HTML5}' == 'True' else ''} \
+  ${@'${TOPDIR}/../meta-openembedded/meta-networking' if '${RZ_FEATURE_HTML5}' == 'True' else ''} \
   "

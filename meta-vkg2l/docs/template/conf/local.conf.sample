@@ -102,7 +102,7 @@ PACKAGE_CLASSES ?= "package_rpm"
 # There are other application targets that can be used here too, see
 # meta/classes/image.bbclass and meta/classes/core-image.bbclass for more details.
 # We default to enabling the debugging tweaks.
-EXTRA_IMAGE_FEATURES ?= "debug-tweaks tools-debug"
+EXTRA_IMAGE_FEATURES ?= "debug-tweaks "
 IMAGE_INSTALL_append += " openssh"
 IMAGE_FEATURES_remove += "ssh-server-dropbear"
 
@@ -275,31 +275,7 @@ DEFAULTTUNE_virtclass-multilib-lib32 = "armv7vethf-neon-vfpv4"
 USE_32BIT_PKGS = "1"
 
 IMAGE_INSTALL_append = " \
-	python3-pip \
-	python3-smbus \
-	python3-spidev \
-	python3-pyserial \
-	python3-pyusb \
-"
-
-IMAGE_INSTALL_append = " \
-	python3-opencv \
-	opencv-samples \
-"
-
-IMAGE_INSTALL_append = " \
-	python3-evdev \
-	evtest \
-"
-
-IMAGE_INSTALL_append = " \
 	devmem2 \
-"
-
-IMAGE_INSTALL_append = " \
-	iw \
-	wpa-supplicant \
-	bluez5 \
 "
 
 #IMAGE_INSTALL_append = " \
@@ -346,6 +322,10 @@ WKS_SUPPORT ?= "1"
 # "1" - emmc embedded storage
 CONFIG_WKS_eMMC = "1"
 
+RZ_FEATURE_HTML5 = "${@os.path.isdir("${TOPDIR}/../meta-browser")}"
+
+CONFIG_HTML5 ?= "${@"1" if '${RZ_FEATURE_HTML5}' == 'True' else "0"}" 
+
 # Generate spdx files
 #INHERIT += "create-spdx"
 
@@ -368,3 +348,5 @@ CONFIG_WKS_eMMC = "1"
 BB_NO_NETWORK = "0"
 
 MACHINE_EXTRA_RDEPENDS += " linux-firmware"
+
+RRECOMMENDS_libubootenv-bin_remove_class-target = " u-boot-default-env"

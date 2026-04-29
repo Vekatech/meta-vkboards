@@ -1,0 +1,113 @@
+From aa52249ad00e3bbf1583aa084f4a5ecbd298108d Mon Sep 17 00:00:00 2001
+From: dtodoroff <d.todorov@vekatech.com>
+Date: Tue, 29 Jul 2025 17:21:05 +0300
+Subject: [PATCH] start file chooser dialog maximized in kiosk mode
+
+
+diff --git a/ui/gtk/gtk_compat.cc b/ui/gtk/gtk_compat.cc
+index d196e304a4319..e47c594f592e5 100644
+--- a/ui/gtk/gtk_compat.cc
++++ b/ui/gtk/gtk_compat.cc
+@@ -389,6 +389,18 @@ GtkWidget* GtkFileChooserDialogNew(const gchar* title,
+       second_button_text, second_response, nullptr);
+ }
+ 
++DISABLE_CFI_DLSYM
++void GtkWindowFullscreen(GtkWindow* window) {
++  static void* create = DlSym(GetLibGtk(), "gtk_window_fullscreen");
++  return DlCast<void (GtkWindow*)>(create)(window);
++}
++
++DISABLE_CFI_DLSYM
++void GtkWindowMaximize(GtkWindow* window) {
++  static void* create = DlSym(GetLibGtk(), "gtk_window_maximize");
++  return DlCast<void (GtkWindow*)>(create)(window);
++}
++
+ DISABLE_CFI_DLSYM
+ GtkTreeStore* GtkTreeStoreNew(GType type) {
+   static void* create = DlSym(GetLibGtk(), "gtk_tree_store_new");
+diff --git a/ui/gtk/gtk_compat.h b/ui/gtk/gtk_compat.h
+index 94f3997bcfc05..378fc9248983e 100644
+--- a/ui/gtk/gtk_compat.h
++++ b/ui/gtk/gtk_compat.h
+@@ -126,6 +126,11 @@ GtkWidget* GtkFileChooserDialogNew(const gchar* title,
+                                    const gchar* second_button_text,
+                                    GtkResponseType second_response);
+ 
++
++void GtkWindowFullscreen(GtkWindow* window);
++
++void GtkWindowMaximize(GtkWindow* window);
++
+ GtkTreeStore* GtkTreeStoreNew(GType type);
+ 
+ // These functions have dropped "const" in their signatures, so cannot be
+diff --git a/ui/gtk/select_file_dialog_linux_gtk.cc b/ui/gtk/select_file_dialog_linux_gtk.cc
+index c1b1b1b35b46a..7af2a3d0fb8e2 100644
+--- a/ui/gtk/select_file_dialog_linux_gtk.cc
++++ b/ui/gtk/select_file_dialog_linux_gtk.cc
+@@ -24,6 +24,8 @@
+ #include "base/strings/utf_string_conversions.h"
+ #include "base/threading/thread.h"
+ #include "base/threading/thread_restrictions.h"
++#include "chrome/common/chrome_switches.h"
++#include "content/public/common/content_switches.h"
+ #include "ui/aura/window_observer.h"
+ #include "ui/base/glib/scoped_gobject.h"
+ #include "ui/base/l10n/l10n_util.h"
+@@ -431,10 +433,19 @@ GtkWidget* SelectFileDialogLinuxGtk::CreateSelectFolderDialog(
+                 IDS_SELECT_UPLOAD_FOLDER_DIALOG_UPLOAD_BUTTON)
+           : GetOpenLabel();
+ 
++  LOG(INFO) << __func__ << " called";
+   GtkWidget* dialog = GtkFileChooserDialogNew(
+       title_string.c_str(), nullptr, GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER,
+       GetCancelLabel(), GTK_RESPONSE_CANCEL, accept_button_label.c_str(),
+       GTK_RESPONSE_ACCEPT);
++  // In kiosk mode, we want to always be fullscreen.
++  if (  base::CommandLine::ForCurrentProcess()->HasSwitch(
++                                  switches::kKioskMode)
++     || base::CommandLine::ForCurrentProcess()->HasSwitch(
++                                  switches::kStartFullscreen)) 
++  {
++      GtkWindowMaximize(GTK_WINDOW(dialog));
++  }
+   SetGtkTransientForAura(dialog, parent);
+   GtkFileChooser* chooser = GTK_FILE_CHOOSER(dialog);
+   if (type == SELECT_UPLOAD_FOLDER || type == SELECT_EXISTING_FOLDER)
+@@ -465,7 +476,15 @@ GtkWidget* SelectFileDialogLinuxGtk::CreateFileOpenDialog(
+       !title.empty() ? title
+                      : l10n_util::GetStringUTF8(IDS_OPEN_FILE_DIALOG_TITLE);
+ 
++  LOG(INFO) << __func__ << " called";
+   GtkWidget* dialog = CreateFileOpenHelper(title_string, default_path, parent);
++  if (  base::CommandLine::ForCurrentProcess()->HasSwitch(
++                                  switches::kKioskMode)
++     || base::CommandLine::ForCurrentProcess()->HasSwitch(
++                                  switches::kStartFullscreen)) 
++  {
++      GtkWindowMaximize(GTK_WINDOW(dialog));
++  }
+   gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), FALSE);
+   g_signal_connect(dialog, "response",
+                    G_CALLBACK(OnSelectSingleFileDialogResponseThunk), this);
+@@ -480,7 +499,15 @@ GtkWidget* SelectFileDialogLinuxGtk::CreateMultiFileOpenDialog(
+       !title.empty() ? title
+                      : l10n_util::GetStringUTF8(IDS_OPEN_FILES_DIALOG_TITLE);
+ 
++  LOG(INFO) << __func__ << " called";
+   GtkWidget* dialog = CreateFileOpenHelper(title_string, default_path, parent);
++  if (  base::CommandLine::ForCurrentProcess()->HasSwitch(
++                                  switches::kKioskMode)
++     || base::CommandLine::ForCurrentProcess()->HasSwitch(
++                                  switches::kStartFullscreen)) 
++  {
++      GtkWindowMaximize(GTK_WINDOW(dialog));
++  }
+   gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), TRUE);
+   g_signal_connect(dialog, "response",
+                    G_CALLBACK(OnSelectMultiFileDialogResponseThunk), this);
+-- 
+2.43.0
+

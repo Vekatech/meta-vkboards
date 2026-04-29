@@ -1,0 +1,21 @@
+From 009466d8a05a4176dc1f92340e49259bc8175cb7 Mon Sep 17 00:00:00 2001
+From: dtodoroff <d.todorov@vekatech.com>
+Date: Wed, 23 Jul 2025 10:45:02 +0300
+Subject: [PATCH 2/8] disable EEE for ethernet phy LEDs
+
+
+diff --git a/drivers/net/phy/realtek.c b/drivers/net/phy/realtek.c
+index b1b1fa5080..42fead52f7 100644
+--- a/drivers/net/phy/realtek.c
++++ b/drivers/net/phy/realtek.c
+@@ -245,6 +245,7 @@ static int rtl8211f_config(struct phy_device *phydev)
+ 	phy_write(phydev, MDIO_DEVAD_NONE,
+ 		  MIIM_RTL8211F_PAGE_SELECT, 0xd04);
+ 	phy_write(phydev, MDIO_DEVAD_NONE, 0x10, 0x617f);
++    phy_write(phydev, MDIO_DEVAD_NONE, 0x11, 0x0000); /*Disable EEE LED indication*/
+ 	phy_write(phydev, MDIO_DEVAD_NONE,
+ 		  MIIM_RTL8211F_PAGE_SELECT, 0x0);
+ 
+-- 
+2.43.0
+

@@ -1,26 +1,17 @@
-COMPATIBLE_MACHINE_vkrzg2l = "vkrzg2l"
-COMPATIBLE_MACHINE_vkrzv2l = "vkrzv2l"
-COMPATIBLE_MACHINE_vkrzg2lc = "vkrzg2lc"
-COMPATIBLE_MACHINE_vkcmg2lc = "vkcmg2lc"
-COMPATIBLE_MACHINE_vk-d184280e = "vk-d184280e"
-COMPATIBLE_MACHINE_vkrzg2ul = "vkrzg2ul"
+COMPATIBLE_MACHINE:vkrzg2lc = "vkrzg2lc"
+COMPATIBLE_MACHINE:vk-d184280e = "vk-d184280e"
 
-FILESEXTRAPATHS_prepend := "${THISDIR}/${PN}:"
+FILESEXTRAPATHS:prepend := "${THISDIR}/${PN}:"
 
-SRCREV = "5141064c1552accaf69c6f509bf21b2063b9cff5"
+SRCREV = "b105c304da659417de099e50af1a0fce7aa85164"
 
-SRC_URI_append_vkrzg2l = " \
+SRC_URI:append = " \
 	file://0001-add-support-for-cm33-command.patch \
-"
-
-SRC_URI += " \
-	file://0002-disable-EEE-for-ethernet-LEDs.patch \
-	file://0003-resolve-issue-with-multi-mii-buses.patch \
+	file://0002-disable-EEE-for-ethernet-phy-LEDs.patch \
+	file://0003-adjust-INFO-for-used-Macronix-flash-devices.patch \
 	file://0004-add-option-rawimg-for-fastboot-flash-write-command.patch \
-	file://0005-adjust-INFO-for-used-Macronix-flash-devices.patch \
-	file://0006-resolve-problem-with-endpoint-maxpacket-while-receiv.patch \
-	file://0007-add-support-for-6-vkboards-in-build-system.patch \
-	file://0008-add-files-for-6-vkboards.patch \
-	file://0009-add-support-for-1GB-board-versions.patch \
-	file://0010-add-opencv-accelerator-support-for-vkrzv2l-board.patch \
+	file://0005-resolve-problem-with-endpoint-maxpacket-while-receiv.patch \
+	file://0006-add-support-for-WDTOVF_PERROUT-signal.patch \
+	file://0007-add-vk-boards-common-files.patch \
+	file://0008-add-Vekatech-boards-support.patch \
 "

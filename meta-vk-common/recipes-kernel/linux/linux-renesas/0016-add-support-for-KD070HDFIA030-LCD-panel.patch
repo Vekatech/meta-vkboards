@@ -1,0 +1,94 @@
+From 9abccfe612581248016164715656f34034161985 Mon Sep 17 00:00:00 2001
+From: dtodoroff <d.todorov@vekatech.com>
+Date: Thu, 24 Jul 2025 16:19:39 +0300
+Subject: [PATCH 16/16] add support for KD070HDFIA030 LCD panel
+
+
+diff --git a/Documentation/devicetree/bindings/display/panel/fitipower,ek79007ad.yaml b/Documentation/devicetree/bindings/display/panel/fitipower,ek79007ad.yaml
+index ae79d8be6029..99f44bb462cb 100644
+--- a/Documentation/devicetree/bindings/display/panel/fitipower,ek79007ad.yaml
++++ b/Documentation/devicetree/bindings/display/panel/fitipower,ek79007ad.yaml
+@@ -14,6 +14,7 @@ properties:
+     items:
+       - enum:
+           - vekatech,vklcd07
++          - vekatech,vklcd-kd070hdfia030
+       - const: fitipower,ek79007ad
+ 
+   backlight: true
+diff --git a/drivers/gpu/drm/panel/panel-fitipower-ek79007ad.c b/drivers/gpu/drm/panel/panel-fitipower-ek79007ad.c
+index 503dddc9b0b0..aa1e7168ece5 100644
+--- a/drivers/gpu/drm/panel/panel-fitipower-ek79007ad.c
++++ b/drivers/gpu/drm/panel/panel-fitipower-ek79007ad.c
+@@ -38,7 +38,8 @@ struct ek79007ad {
+ 
+ 	struct regulator* power;
+ 	struct gpio_desc* enable_gpio;
+-	struct gpio_desc* reset;
++	struct gpio_desc* reset_gpio;
++    struct gpio_desc* power_gpio;
+ };
+ 
+ #define EK79007AD_COMMAND_INSTR(_cmd, _data)		\
+@@ -147,10 +148,10 @@ static int ek79007ad_prepare(struct drm_panel* panel) {
+ 	msleep(20);
+ 
+ 	/* And reset it */
+-	gpiod_set_value(ctx->reset, 1);
++	gpiod_set_value(ctx->reset_gpio, 1);
+ 	msleep(30);
+ 
+-	gpiod_set_value(ctx->reset, 0);
++	gpiod_set_value(ctx->reset_gpio, 0);
+ 	msleep(60);
+ 
+ #ifdef DEBUG
+@@ -303,6 +304,11 @@ static int ek79007ad_dsi_probe(struct mipi_dsi_device* dsi) {
+ 	if (ek79007ad_init_vklcd07 == ctx->desc->init) {
+ 		dev_notice(&dsi->dev, "Initialize Vekatech VKLCD07 display\n");
+ 	}
++
++    if (ek79007ad_init_vklcd_kd070hdfia030 == ctx->desc->init) {
++        dev_notice(&dsi->dev, "Initialize Vekatech KD070HDFIA030 display\n");
++    }
++
+ 	drm_panel_init(&ctx->panel, &dsi->dev, &ek79007ad_funcs,
+ 		DRM_MODE_CONNECTOR_DSI);
+ 
+@@ -312,18 +318,26 @@ static int ek79007ad_dsi_probe(struct mipi_dsi_device* dsi) {
+ 		return PTR_ERR(ctx->power);
+ 	}
+ 
+-	/* The enable GPIO is optional, this pin is MIPI DSI/HDMI switch select input. */
+-	ctx->enable_gpio = devm_gpiod_get_optional(&dsi->dev, "switch", GPIOD_OUT_HIGH);
++	/* The enable GPIO is optional */
++	ctx->enable_gpio = devm_gpiod_get_optional(&dsi->dev, "enable", GPIOD_OUT_HIGH);
+ 	if (IS_ERR_OR_NULL(ctx->enable_gpio)) {
+-		dev_dbg(&dsi->dev, "Couldn't get our switch GPIO\n");
++		dev_notice(&dsi->dev, "Couldn't get our enable GPIO\n");
+ 		ctx->enable_gpio = NULL;
+ 	}
+ 	gpiod_set_value(ctx->enable_gpio, 1);
+ 
+-	ctx->reset = devm_gpiod_get(&dsi->dev, "reset", GPIOD_OUT_LOW);
+-	if (IS_ERR(ctx->reset)) {
+-		dev_err(&dsi->dev, "Couldn't get our reset GPIO\n");
+-		return PTR_ERR(ctx->reset);
++    /* The power GPIO is optional */
++	ctx->power_gpio = devm_gpiod_get_optional(&dsi->dev, "power", GPIOD_OUT_HIGH);
++	if (IS_ERR_OR_NULL(ctx->enable_gpio)) {
++		dev_notice(&dsi->dev, "Couldn't get our power GPIO\n");
++		ctx->power_gpio = NULL;
++	}
++	gpiod_set_value(ctx->power_gpio, 1);
++
++	ctx->reset_gpio = devm_gpiod_get_optional(&dsi->dev, "reset", GPIOD_OUT_LOW);
++	if (IS_ERR_OR_NULL(ctx->reset_gpio)) {
++		dev_notice(&dsi->dev, "Couldn't get our reset GPIO\n");
++        ctx->reset_gpio = NULL;
+ 	}
+ 	ret = of_property_read_u32(dsi->dev.of_node, "dsi-lanes", &dsi->lanes);
+ 	if (ret < 0) {
+-- 
+2.43.0
+

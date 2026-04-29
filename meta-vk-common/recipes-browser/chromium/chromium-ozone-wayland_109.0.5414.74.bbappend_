@@ -1,0 +1,17 @@
+COMPATIBLE_MACHINE_vkrzv2l = "vkrzv2l"
+COMPATIBLE_MACHINE_vkrzg2l = "vkrzg2l"
+COMPATIBLE_MACHINE_vkrzg2lc = "vkrzg2lc"
+COMPATIBLE_MACHINE_vkcmg2lc = "vkcmg2lc"
+COMPATIBLE_MACHINE_vk-d184280e = "vk-d184280e"
+COMPATIBLE_MACHINE_vkrzg2ul = "vkrzg2ul"
+COMPATIBLE_MACHINE_vkcmv2l = "vkcmv2l"
+
+FILESEXTRAPATHS_prepend := "${THISDIR}/files:"
+
+SRC_URI_append = " \
+	file://0001-start-file-chooser-dialog-maximized-in-kiosk-mode.patch \
+"
+
+GN_ARGS:remove = "use_gtk=false"
+
+GN_ARGS:append = " use_gtk=true"

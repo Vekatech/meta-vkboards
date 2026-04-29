@@ -1,0 +1,39 @@
+From cf689be4aa3a457c33932714461b9ed64f79476b Mon Sep 17 00:00:00 2001
+From: dtodoroff <d.todorov@vekatech.com>
+Date: Wed, 23 Jul 2025 16:07:28 +0300
+Subject: [PATCH 07/16] add support for vkboards dts and overlays in make
+ system
+
+
+diff --git a/arch/arm64/boot/dts/renesas/Makefile b/arch/arm64/boot/dts/renesas/Makefile
+index 0b41c780bb66..77f37f50ca08 100644
+--- a/arch/arm64/boot/dts/renesas/Makefile
++++ b/arch/arm64/boot/dts/renesas/Makefile
+@@ -100,3 +100,24 @@ dtb-$(CONFIG_ARCH_R9A08G045) += r9a08g045s33-smarc.dtb
+ 
+ dtb-$(CONFIG_ARCH_R9A09G011) += r9a09g011-v2mevk2.dtb
+ dtb-$(CONFIG_ARCH_R9A09G055) += r9a09g055-v2maevk2.dtb
++
++dtb-$(CONFIG_BOARD_VKRZV2L) += vkrzv2l.dtb
++subdir-$(CONFIG_BOARD_VKRZV2L) += overlays-vkrzv2l
++
++dtb-$(CONFIG_BOARD_VKRZG2L) += vkrzg2l.dtb
++subdir-$(CONFIG_BOARD_VKRZG2L) += overlays-vkrzg2l
++
++dtb-$(CONFIG_BOARD_VKRZG2LC) += vkrzg2lc.dtb
++subdir-$(CONFIG_BOARD_VKRZG2LC) += overlays-vkrzg2lc
++
++dtb-$(CONFIG_BOARD_VKCMG2LC) += vkcmg2lc.dtb
++subdir-$(CONFIG_BOARD_VKCMG2LC) += overlays-vkcmg2lc
++
++dtb-$(CONFIG_BOARD_VK_D184280E) += vk-d184280e.dtb
++subdir-$(CONFIG_BOARD_VK_D184280E) += overlays-vk-d184280e
++
++dtb-$(CONFIG_BOARD_VKRZG2UL) += vkrzg2ul.dtb
++subdir-$(CONFIG_BOARD_VKRZG2UL) += overlays-vkrzg2ul
++
++dtb-$(CONFIG_BOARD_VKCMV2L) += vkcmv2l.dtb
++subdir-$(CONFIG_BOARD_VKCMV2L) += overlays-vkcmv2l
+-- 
+2.43.0
+

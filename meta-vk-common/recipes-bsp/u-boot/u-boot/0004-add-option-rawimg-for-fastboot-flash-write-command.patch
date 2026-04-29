@@ -1,7 +1,7 @@
-From 35db601c8a5ab46106e34634b3ebcd28b306a049 Mon Sep 17 00:00:00 2001
+From 47d8fbff012ad527e2ea918fd4b7a2fe0d5c3bd7 Mon Sep 17 00:00:00 2001
 From: dtodoroff <d.todorov@vekatech.com>
-Date: Sun, 3 Nov 2024 10:41:40 +0200
-Subject: [PATCH 4/9] add option 'rawimg' for  fastboot flash write command
+Date: Wed, 23 Jul 2025 10:56:45 +0300
+Subject: [PATCH 4/8] add option rawimg for fastboot flash write command
 
 
 diff --git a/drivers/fastboot/fb_mmc.c b/drivers/fastboot/fb_mmc.c
@@ -70,5 +70,5 @@ index cbb3f7b1de..6f82eb00ee 100644
  	if (strcmp(cmd, CONFIG_FASTBOOT_MMC_BOOT1_NAME) == 0) {
  		dev_desc = fastboot_mmc_get_dev(response);
 -- 
-2.34.1
+2.43.0
 

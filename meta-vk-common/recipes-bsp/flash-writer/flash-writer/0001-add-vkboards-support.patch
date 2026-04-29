@@ -1,14 +1,37 @@
-From ea902a3f2c72fc4286919345dfd7f81fcb3b89be Mon Sep 17 00:00:00 2001
+From 682b67de8988d8b1ca24af64c960798fd5acb6b4 Mon Sep 17 00:00:00 2001
 From: dtodoroff <d.todorov@vekatech.com>
-Date: Mon, 25 Nov 2024 09:45:55 +0200
+Date: Tue, 15 Jul 2025 10:06:02 +0300
 Subject: [PATCH] add vkboards support
 
 
 diff --git a/dgmodul4.c b/dgmodul4.c
-index ab37074..d571b22 100644
+index ab37074..cb06274 100644
 --- a/dgmodul4.c
 +++ b/dgmodul4.c
-@@ -132,8 +132,8 @@ static uint32_t CheckQspiFlashId(void)
+@@ -53,8 +53,8 @@ static uint32_t CheckQspiFlashId(void)
+ 	gDeviceId		= deviceId;
+ 	switch(manuId)
+ 	{
+-		case CYPRESS_MANUFACTURER_ID:
+-			PutStr(" Cypress : ", 0);
++		case INFINEON_MANUFACTURER_ID:
++			PutStr(" Infineon : ", 0);
+ 			switch(deviceId)
+ 			{
+ 				case DEVICE_ID_S25FS512S:
+@@ -67,6 +67,11 @@ static uint32_t CheckQspiFlashId(void)
+ 						gQspi_sa_size    = SA_256KB;
+ 						gQspi_end_addess = TOTAL_SIZE_16MB - 0x8000 - 1;
+ 				break;
++                case DEVICE_ID_S25FL128L:
++                        PutStr("S25FL128L", 1);
++                        gQspi_sa_size    = SA_64KB;
++                        gQspi_end_addess = TOTAL_SIZE_16MB - 0x8000 - 1;
++                break;
+ 				default:
+ 					ret = 1;
+ 				break;
+@@ -132,8 +137,8 @@ static uint32_t CheckQspiFlashId(void)
  			PutStr(" Macronix : ", 0);
  			switch(deviceId)
  			{
@@ -19,7 +42,7 @@ index ab37074..d571b22 100644
  						gQspi_sa_size    = SA_64KB;
  						gQspi_end_addess = TOTAL_SIZE_16MB - 0x8000 - 1;
  				break;
-@@ -147,8 +147,8 @@ static uint32_t CheckQspiFlashId(void)
+@@ -147,8 +152,8 @@ static uint32_t CheckQspiFlashId(void)
  						gQspi_sa_size    = SA_64KB;
  						gQspi_end_addess = TOTAL_SIZE_64MB - 0x8000 - 1;
  				break;
@@ -31,10 +54,27 @@ index ab37074..d571b22 100644
  						gQspi_end_addess = TOTAL_SIZE_32MB - 0x8000 - 1;
  				break;
 diff --git a/include/dgmodul4.h b/include/dgmodul4.h
-index 2e20529..6795e53 100644
+index 2e20529..21b10a8 100644
 --- a/include/dgmodul4.h
 +++ b/include/dgmodul4.h
-@@ -53,10 +53,10 @@
+@@ -34,7 +34,7 @@
+ #define	TOTAL_SIZE_16MB			0x01000000
+ #define	TOTAL_SIZE_8MB			0x00800000
+ 
+-#define	CYPRESS_MANUFACTURER_ID		0x01	/* Cypress	*/
++#define	INFINEON_MANUFACTURER_ID	0x01	/* Infineon	*/
+ #define	WINBOND_MANUFACTURER_ID		0xEF	/* Winbond	*/
+ #define	MACRONIX_MANUFACTURER_ID	0xC2	/* Macronix	*/
+ #define	MICRON_MANUFACTURER_ID		0x20	/* Micron	*/
+@@ -42,6 +42,7 @@
+ 
+ #define	DEVICE_ID_S25FS128S		0x2018
+ #define	DEVICE_ID_S25FS512S		0x0220
++#define	DEVICE_ID_S25FL128L  	0x6018
+ 
+ #define	DEVICE_ID_W25Q64JV		0x4017
+ #define	DEVICE_ID_W25Q64JW		0x6017
+@@ -53,10 +54,10 @@
  #define	DEVICE_ID_W25Q512JV		0x4020
  #define	DEVICE_ID_W25Q512JV_DTR		0x7020
  
@@ -48,7 +88,7 @@ index 2e20529..6795e53 100644
  #define	DEVICE_ID_MX66UM1G45G		0x803B
  #define	DEVICE_ID_MX66UW1G45G		0x813B
 diff --git a/makefile b/makefile
-index 0d4c834..3e9b6b4 100644
+index 0d4c834..0a56289 100644
 --- a/makefile
 +++ b/makefile
 @@ -44,6 +44,15 @@ DEVICE   = RZG2L
@@ -118,7 +158,7 @@ index 0d4c834..3e9b6b4 100644
  else ifeq ("$(BOARD)", "RZG2UL_TYPE2_SMARC")
  #--------------------------------------
  # RZ/G2UL Type2 Smarc board
-@@ -148,6 +194,15 @@ DEVICE   = RZV2L
+@@ -148,6 +194,24 @@ DEVICE   = RZV2L
  DDR_TYPE = DDR4
  DDR_SIZE = 4GB
  SWIZZLE  = T2C
@@ -131,11 +171,20 @@ index 0d4c834..3e9b6b4 100644
 +DDR_TYPE = DDR4
 +DDR_SIZE = 2GB_1PCS
 +SWIZZLE  = T1BC
++else ifeq ("$(BOARD)", "VKCMV2L")
++#--------------------------------------
++# VK-CMV2L board
++#--------------------------------------
++FILENAME_ADD = _VKCMV2L
++DEVICE   = RZV2L
++DDR_TYPE = DDR4
++DDR_SIZE = 2GB_1PCS
++SWIZZLE  = T1BC
  else ifeq ("$(BOARD)", "RZA3UL_DEV")
  #--------------------------------------
  # RZ/A3UL DDR4 Dev board
 diff --git a/makefile.linaro b/makefile.linaro
-index 453572f..9a0d06c 100644
+index 453572f..0a759e1 100644
 --- a/makefile.linaro
 +++ b/makefile.linaro
 @@ -44,6 +44,15 @@ DEVICE   = RZG2L
@@ -205,7 +254,7 @@ index 453572f..9a0d06c 100644
  else ifeq ("$(BOARD)", "RZG2UL_TYPE2_SMARC")
  #--------------------------------------
  # RZ/G2UL Type2 Smarc board
-@@ -148,6 +194,15 @@ DEVICE   = RZV2L
+@@ -148,6 +194,24 @@ DEVICE   = RZV2L
  DDR_TYPE = DDR4
  DDR_SIZE = 4GB
  SWIZZLE  = T2C
@@ -218,9 +267,31 @@ index 453572f..9a0d06c 100644
 +DDR_TYPE = DDR4
 +DDR_SIZE = 2GB_1PCS
 +SWIZZLE  = T1BC
++else ifeq ("$(BOARD)", "VKCMV2L")
++#--------------------------------------
++# VK-CMV2L board
++#--------------------------------------
++FILENAME_ADD = _VKCMV2L
++DEVICE   = RZV2L
++DDR_TYPE = DDR4
++DDR_SIZE = 2GB_1PCS
++SWIZZLE  = T1BC
  else ifeq ("$(BOARD)", "RZA3UL_DEV")
  #--------------------------------------
  # RZ/A3UL DDR4 Dev board
+diff --git a/spiflash1drv.c b/spiflash1drv.c
+index ca6b172..04d7286 100644
+--- a/spiflash1drv.c
++++ b/spiflash1drv.c
+@@ -366,7 +366,7 @@ void SectorEraseQspi_Flash(uint32_t EraseStatAdd, uint32_t EraseEndAdd)
+ 	PutStr(str, 1);
+ #endif
+ 
+-	if ((gManufacturerId == CYPRESS_MANUFACTURER_ID ) && (gDeviceId == DEVICE_ID_S25FS128S))
++	if ((gManufacturerId == INFINEON_MANUFACTURER_ID ) && (gDeviceId == DEVICE_ID_S25FS128S))
+ 	{
+ 		if (gQspi_sa_size == SA_256KB)
+ 		{
 -- 
-2.34.1
+2.43.0
 
