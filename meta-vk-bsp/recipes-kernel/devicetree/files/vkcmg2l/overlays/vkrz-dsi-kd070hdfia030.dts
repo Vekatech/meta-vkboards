@@ -1,0 +1,84 @@
+/*
+ * Copyright 2024 Vekatech
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/pinctrl/rzg2l-pinctrl.h>
+#include <dt-bindings/gpio/gpio.h>
+#include <dt-bindings/input/input.h>
+#include <dt-bindings/interrupt-controller/irq.h>
+#include <dt-bindings/interrupt-controller/irqc-rzg2l.h>
+
+&du {
+	status = "okay";
+};
+
+&dsi {
+	status = "okay";
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		port@1 {
+			reg = <1>;
+			dsi0_out: endpoint {
+				data-lanes = <1 2 3 4>;
+				remote-endpoint = <&panel_in>;
+			};
+		};
+	};
+};
+
+&mipi_panel {
+	status = "okay";
+	compatible = "vekatech,vklcd-kd070hdfia030","fitipower,ek79007ad";
+
+	reset-gpios = <&pinctrl RZG2L_GPIO(43, 3) (GPIO_ACTIVE_LOW|GPIO_OPEN_DRAIN)>;
+	lcd-model = "kd070hdfia030";
+	dsi-lanes = <4>;
+	port {
+		panel_in: endpoint {
+			remote-endpoint = <&dsi0_out>;
+		};
+	};
+};
+
+&backlight {
+	pwms = <&gpt5 0 40000 0>;
+	status = "okay";
+};
+
+&pinctrl {
+	gpt5_pins: gpt5 {
+		pinmux = <RZG2L_PORT_PINMUX(43, 2, 2)>; /* Channel A */
+	};
+};
+
+&gpt5 {
+	pinctrl-0 = <&gpt5_pins>;
+	pinctrl-names = "default";
+	channel="channel_A";
+	poeg = <&poegd>;
+	status = "okay";
+};
+
+&gt9271 {
+	status = "okay";
+
+	interrupt-parent = <&pinctrl>;
+	interrupts = <RZG2L_GPIO(2, 1) IRQ_TYPE_LEVEL_LOW>;
+	irq-gpios = <&pinctrl RZG2L_GPIO(2, 1) GPIO_ACTIVE_HIGH>;   /* DSI_TS_nINT */
+	reset-gpios = <&pinctrl RZG2L_GPIO(43, 1) GPIO_ACTIVE_LOW>;
+};
+

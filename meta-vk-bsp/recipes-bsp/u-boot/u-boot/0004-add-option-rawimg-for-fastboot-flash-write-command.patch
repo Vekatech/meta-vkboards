@@ -1,14 +1,14 @@
-From 67d432afa3b19df330632df4336b5dbf7baa4ad0 Mon Sep 17 00:00:00 2001
+From 66ea6ad579581d856029e70cb60053138d0fad5f Mon Sep 17 00:00:00 2001
 From: dtodoroff <d.todorov@vekatech.com>
-Date: Tue, 15 Jul 2025 15:56:15 +0300
-Subject: [PATCH 4/8] add option rawimg for fastboot flash write command
+Date: Wed, 12 Aug 2026 10:29:11 +0300
+Subject: [PATCH 4/9] add option rawimg for fastboot flash write command
 
 
 diff --git a/drivers/fastboot/fb_mmc.c b/drivers/fastboot/fb_mmc.c
-index cbb3f7b1de..6f82eb00ee 100644
+index 060918e491..c580ae1fa1 100644
 --- a/drivers/fastboot/fb_mmc.c
 +++ b/drivers/fastboot/fb_mmc.c
-@@ -514,6 +514,60 @@ void fastboot_mmc_flash_write(const char *cmd, void *download_buffer,
+@@ -513,6 +513,60 @@ void fastboot_mmc_flash_write(const char *cmd, void *download_buffer,
  	struct blk_desc *dev_desc;
  	struct disk_partition info = {0};
  

@@ -1,0 +1,26 @@
+// SPDX-License-Identifier: (GPL-2.0-only OR BSD-2-Clause)
+/*
+ * Device Tree Source for the VK-VM Carrier Board
+ *
+ * Copyright (C) 2026 Velatech Ltd.
+ */
+
+/dts-v1/;
+
+#define WIFI_MODULE_1YN     0
+#define DDR4_1GB	    1
+
+#include "r9a07g044c2.dtsi"
+#if DDR4_1GB
+#include "vkcmg2lc_1G.dtsi"
+#else
+#include "vkcmg2lc_2G.dtsi"
+#endif
+#include "vkvm-carrier.dtsi"
+//#include "vkvm-kbe.dtsi"
+//#include "vkvm-dsi2lvds.dtsi"
+
+/ {
+	model = "Vekatech Vending Machine Carrier Board based on VK-CMRZ/G2LC module";
+	compatible = "vekatech,vk-vmcarrier", "renesas,r9a07g044c2", "renesas,r9a07g044";
+};

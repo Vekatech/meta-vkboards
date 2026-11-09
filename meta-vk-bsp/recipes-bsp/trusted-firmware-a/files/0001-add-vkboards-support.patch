@@ -1,9 +1,28 @@
-From 5f013c4a21d1e3c366dc552c9c87049a59aef0a9 Mon Sep 17 00:00:00 2001
+From 5c4db0a053879f67d9cbdab2614b7d3769e0a9d0 Mon Sep 17 00:00:00 2001
 From: dtodoroff <d.todorov@vekatech.com>
-Date: Tue, 15 Jul 2025 11:25:00 +0300
+Date: Tue, 11 Aug 2026 15:37:40 +0300
 Subject: [PATCH] add vkboards support
 
 
+diff --git a/plat/renesas/rz/board/vkcmg2l/rz_board.mk b/plat/renesas/rz/board/vkcmg2l/rz_board.mk
+new file mode 100644
+index 000000000..792765649
+--- /dev/null
++++ b/plat/renesas/rz/board/vkcmg2l/rz_board.mk
+@@ -0,0 +1,13 @@
++#
++# Copyright (c) 2022, Vekatech Ltd.. All rights reserved.
++#
++# SPDX-License-Identifier: BSD-3-Clause
++#
++DDR_SOURCES +=  plat/renesas/rz/soc/${PLAT}/drivers/ddr/param_mc_C-011_D4-01-1.c \
++				plat/renesas/rz/common/drivers/ddr/param_swizzle_T1bc.c
++
++DDR_PLL4    := 1600
++$(eval $(call add_define,DDR_PLL4))
++
++RZG2L := 1
++$(eval $(call add_define,RZG2L))
 diff --git a/plat/renesas/rz/board/vkcmg2lc/rz_board.mk b/plat/renesas/rz/board/vkcmg2lc/rz_board.mk
 new file mode 100644
 index 000000000..7830f0abf

@@ -1,0 +1,33 @@
+From d9aaa07d13f96d8a2f4d7543c2da45c6b262218c Mon Sep 17 00:00:00 2001
+From: dtodoroff <d.todorov@vekatech.com>
+Date: Thu, 26 Feb 2026 16:37:07 +0200
+Subject: [PATCH 6/6] phy RTL8211F: eee-broken support
+
+
+diff --git a/drivers/net/phy/realtek.c b/drivers/net/phy/realtek.c
+index 70e52d27064e..6ff859e5e518 100644
+--- a/drivers/net/phy/realtek.c
++++ b/drivers/net/phy/realtek.c
+@@ -406,6 +406,19 @@ static int rtl8211f_config_init(struct phy_device *phydev)
+ 			val_rxdly ? "enabled" : "disabled");
+ 	}
+ 
++	if (phydev->eee_broken_modes) {
++		dev_notice(dev, "RTL8211F: EEE LED Disable!\n");
++		ret = phy_modify_paged(phydev, 0xd04, 0x10, 0xef7b, 0x617b); /* LCR (LED Control Register, Page 0xd04, Address 0x10) */
++		if (ret < 0) {
++			dev_err(dev, "Failed to update the LED Control Register\n");
++		}
++
++		ret = phy_modify_paged(phydev, 0xd04, 0x11, 0x000e, 0); /* EEELCR (EEE LED Control Register, Page 0xd04, Address 0x11) */
++		if (ret < 0) {
++			dev_err(dev, "Failed to update the EEE LED Control Register\n");
++		}
++	}
++
+ 	if (priv->has_phycr2) {
+ 		ret = phy_modify_paged(phydev, 0xa43, RTL8211F_PHYCR2,
+ 				       RTL8211F_CLKOUT_EN, priv->phycr2);
+-- 
+2.43.0
+

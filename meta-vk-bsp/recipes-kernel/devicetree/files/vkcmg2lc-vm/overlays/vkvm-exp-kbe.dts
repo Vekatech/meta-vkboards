@@ -1,0 +1,107 @@
+/*
+ * Copyright 2026 Vekatech
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/pinctrl/rzg2l-pinctrl.h>
+#include <dt-bindings/gpio/gpio.h>
+
+/{
+	compatible = "vekatech,vk-vmcarrier", 
+	             "renesas,r9a07g044l2", 
+		     "renesas,r9a07g044";
+};
+
+&{/} {
+	vcc_mcp23x17: regulator-mcp23x17 {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc-mcp23x17";
+
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+
+		gpio = <&pinctrl RZG2L_GPIO(42, 2) GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+
+		startup-delay-us = <50000>;
+
+		/*
+		 * Keep the expander supply enabled throughout operation.
+		 */
+		regulator-always-on;
+		regulator-boot-on;
+		vin-supply = <&reg_5p0v>;
+	};
+};
+
+
+&pinctrl {
+	mcp23017_reset_deassert {
+		gpio-hog;
+		gpios = <RZG2L_GPIO(43, 0) GPIO_ACTIVE_HIGH>;
+		output-high;
+		line-name = "mcp23017-reset";
+	};
+};
+
+&leds {
+		pinctrl-names = "default";
+		led_kbe_act {
+			gpios = <&pinctrl RZG2L_GPIO(42, 4) GPIO_ACTIVE_HIGH>;
+			default-state = "off";
+		};
+};
+
+&i2c3 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	gpio_expander_1: gpio@20 {
+		compatible = "microchip,mcp23017";
+		reg = <0x20>;
+
+		/*reset-gpios = <&pinctrl RZG2L_GPIO(43, 0) GPIO_ACTIVE_LOW>;*/
+
+		gpio-controller;
+		#gpio-cells = <2>;
+
+		gpio-line-names =
+			"P1",  "P2",  "P3",  "P4",
+			"P5",  "P6",  "P7",  "P8",
+			"P9",  "P10", "P11", "P12",
+			"P13", "P14", "P15", "P16";
+
+		status = "okay";
+	};
+
+	gpio_expander_2: gpio@21 {
+		compatible = "microchip,mcp23017";
+		reg = <0x21>;
+
+		/*reset-gpios = <&pinctrl RZG2L_GPIO(43, 0) GPIO_ACTIVE_LOW>;*/
+
+		gpio-controller;
+		#gpio-cells = <2>;
+
+		gpio-line-names =
+			"P17", "P18", "P19", "P20",
+			"P21", "P22", "P23", "P24",
+			"P25", "P26", "P27", "P28",
+			"P29", "P30", "P31", "P32";
+
+		status = "okay";
+	};
+};
+

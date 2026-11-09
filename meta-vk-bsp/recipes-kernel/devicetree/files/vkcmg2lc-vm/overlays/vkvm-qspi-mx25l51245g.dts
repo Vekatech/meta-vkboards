@@ -1,0 +1,82 @@
+/*
+ * Copyright 2024 Vekatech
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/pinctrl/rzg2l-pinctrl.h>
+
+/{
+	compatible = "vekatech,vk-vmcarrier", 
+	             "renesas,r9a07g044l2", 
+		     "renesas,r9a07g044";
+};
+
+&pinctrl {
+	qspi0_pins: qspi0 {
+		qspi0-data {
+			pins = "QSPI0_IO0", "QSPI0_IO1", "QSPI0_IO2", "QSPI0_IO3";
+			power-source = <3300>;
+		};
+
+		qspi0-ctrl {
+			pins = "QSPI0_SPCLK", "QSPI0_SSL", "QSPI_RESET#";
+			power-source = <3300>;
+		};
+	};
+};
+
+&sbc {
+	status = "okay";
+
+	pinctrl-0 = <&qspi0_pins>;
+	pinctrl-names = "default";
+
+	flash@0 {
+		status = "okay";
+
+		compatible = "mxicy,mx25l51245g", "jedec,spi-nor";
+		spi-max-frequency = <50000000>;
+		reg = <0>;
+		spi-rx-bus-width = <4>;
+		spi-tx-bus-width = <4>;
+		m25p,fast-read;
+
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			partition@0 {
+				label = "bl2";
+				reg = <0x00000000 0x00020000>;
+				read-only;
+			};
+			partition@20000 {
+				label = "fip";
+				reg = <0x00020000 0x001C0000>;
+				read-only;
+			};
+			partition@1E0000 {
+				label = "env";
+				reg = <0x001F0000 0x00010000>;
+				read-only;
+			};
+			partition@200000 {
+				label = "user";
+				reg = <0x00200000 0x03E00000>;
+			};
+		};
+	};
+};

@@ -1,11 +1,11 @@
-From 682b67de8988d8b1ca24af64c960798fd5acb6b4 Mon Sep 17 00:00:00 2001
+From fd08830e4862a6514339a81f84b2e3dfececd64a Mon Sep 17 00:00:00 2001
 From: dtodoroff <d.todorov@vekatech.com>
-Date: Tue, 15 Jul 2025 10:06:02 +0300
+Date: Tue, 11 Aug 2026 15:31:30 +0300
 Subject: [PATCH] add vkboards support
 
 
 diff --git a/dgmodul4.c b/dgmodul4.c
-index ab37074..cb06274 100644
+index c2a72ee..971d64c 100644
 --- a/dgmodul4.c
 +++ b/dgmodul4.c
 @@ -53,8 +53,8 @@ static uint32_t CheckQspiFlashId(void)
@@ -88,10 +88,10 @@ index 2e20529..21b10a8 100644
  #define	DEVICE_ID_MX66UM1G45G		0x803B
  #define	DEVICE_ID_MX66UW1G45G		0x813B
 diff --git a/makefile b/makefile
-index 0d4c834..0a56289 100644
+index 0d4c834..a138ad0 100644
 --- a/makefile
 +++ b/makefile
-@@ -44,6 +44,15 @@ DEVICE   = RZG2L
+@@ -44,6 +44,24 @@ DEVICE   = RZG2L
  DDR_TYPE = DDR4
  DDR_SIZE = 4GB
  SWIZZLE  = T2C
@@ -104,10 +104,19 @@ index 0d4c834..0a56289 100644
 +DDR_TYPE = DDR4
 +DDR_SIZE = 2GB_1PCS
 +SWIZZLE  = T1BC
++else ifeq ("$(BOARD)", "VKCMG2L")
++#--------------------------------------
++# RZ/G2L VK-CM/G2L board
++#--------------------------------------
++FILENAME_ADD = _VKCMG2L
++DEVICE   = RZG2L
++DDR_TYPE = DDR4
++DDR_SIZE = 2GB_1PCS
++SWIZZLE  = T1BC
  else ifeq ("$(BOARD)", "RZG2LC_SMARC")
  #--------------------------------------
  # RZ/G2LC Smarc board
-@@ -62,6 +71,33 @@ DEVICE   = RZG2LC
+@@ -62,6 +80,33 @@ DEVICE   = RZG2LC
  DDR_TYPE = DDR3L
  DDR_SIZE = 1GB
  SWIZZLE  = T3CL
@@ -141,7 +150,7 @@ index 0d4c834..0a56289 100644
  else ifeq ("$(BOARD)", "RZG2UL_TYPE1_DEV")
  #--------------------------------------
  # RZ/G2UL Type1 DDR4 Dev board
-@@ -92,6 +128,16 @@ DDR_TYPE = DDR4
+@@ -92,6 +137,16 @@ DDR_TYPE = DDR4
  DDR_SIZE = 1GB_1PCS
  SWIZZLE  = T3BCUD2
  DEVICE_TYPE = 1
@@ -158,7 +167,7 @@ index 0d4c834..0a56289 100644
  else ifeq ("$(BOARD)", "RZG2UL_TYPE2_SMARC")
  #--------------------------------------
  # RZ/G2UL Type2 Smarc board
-@@ -148,6 +194,24 @@ DEVICE   = RZV2L
+@@ -148,6 +203,24 @@ DEVICE   = RZV2L
  DDR_TYPE = DDR4
  DDR_SIZE = 4GB
  SWIZZLE  = T2C
@@ -184,10 +193,10 @@ index 0d4c834..0a56289 100644
  #--------------------------------------
  # RZ/A3UL DDR4 Dev board
 diff --git a/makefile.linaro b/makefile.linaro
-index 453572f..0a759e1 100644
+index 453572f..70ba0c3 100644
 --- a/makefile.linaro
 +++ b/makefile.linaro
-@@ -44,6 +44,15 @@ DEVICE   = RZG2L
+@@ -44,6 +44,24 @@ DEVICE   = RZG2L
  DDR_TYPE = DDR4
  DDR_SIZE = 4GB
  SWIZZLE  = T2C
@@ -200,10 +209,19 @@ index 453572f..0a759e1 100644
 +DDR_TYPE = DDR4
 +DDR_SIZE = 2GB_1PCS
 +SWIZZLE  = T1BC
++else ifeq ("$(BOARD)", "VKCMG2L")
++#--------------------------------------
++# VK-CMG2L board
++#--------------------------------------
++FILENAME_ADD = _VKCMG2L
++DEVICE   = RZG2L
++DDR_TYPE = DDR4
++DDR_SIZE = 2GB_1PCS
++SWIZZLE  = T1BC
  else ifeq ("$(BOARD)", "RZG2LC_SMARC")
  #--------------------------------------
  # RZ/G2LC Smarc board
-@@ -62,6 +71,33 @@ DEVICE   = RZG2LC
+@@ -62,6 +80,33 @@ DEVICE   = RZG2LC
  DDR_TYPE = DDR3L
  DDR_SIZE = 1GB
  SWIZZLE  = T3CL
@@ -237,7 +255,7 @@ index 453572f..0a759e1 100644
  else ifeq ("$(BOARD)", "RZG2UL_TYPE1_DEV")
  #--------------------------------------
  # RZ/G2UL Type1 DDR4 Dev board
-@@ -92,6 +128,16 @@ DDR_TYPE = DDR4
+@@ -92,6 +137,16 @@ DDR_TYPE = DDR4
  DDR_SIZE = 1GB_1PCS
  SWIZZLE  = T3BCUD2
  DEVICE_TYPE = 1
@@ -254,7 +272,7 @@ index 453572f..0a759e1 100644
  else ifeq ("$(BOARD)", "RZG2UL_TYPE2_SMARC")
  #--------------------------------------
  # RZ/G2UL Type2 Smarc board
-@@ -148,6 +194,24 @@ DEVICE   = RZV2L
+@@ -148,6 +203,24 @@ DEVICE   = RZV2L
  DDR_TYPE = DDR4
  DDR_SIZE = 4GB
  SWIZZLE  = T2C

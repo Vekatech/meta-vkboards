@@ -1,0 +1,58 @@
+/*
+ * Copyright 2023 Vekatech
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ */
+
+/dts-v1/;
+/plugin/;
+
+&du {
+	status = "okay";
+	dsi-lanes = <4>;
+};
+
+&hdmi_con {
+	status = "okay";
+};
+
+&dsi0 {
+	status = "okay";
+
+	ports {
+		port@1 {
+			dsi0_out: endpoint {
+				remote-endpoint = <&hdmi_in>;
+				data-lanes = <0 1 2 3>;
+			};
+		};
+	};
+};
+
+&lt8912b {
+	status = "okay";
+
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+
+		port@0 {
+			reg = <0>;
+
+			hdmi_in: endpoint {
+				data-lanes = <0 1 2 3>;
+				remote-endpoint = <&dsi0_out>;
+			};
+		};
+
+	};
+};
+

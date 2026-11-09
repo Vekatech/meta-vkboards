@@ -1,11 +1,11 @@
-From cd0c17fe577f08d3719c5101f1673a25fe1d0930 Mon Sep 17 00:00:00 2001
+From 547c7bc22bb8d8a7a0030a41b8d9edf67795c295 Mon Sep 17 00:00:00 2001
 From: dtodoroff <d.todorov@vekatech.com>
-Date: Tue, 15 Jul 2025 16:01:34 +0300
-Subject: [PATCH 6/8] add support for WDTOVF_PERROUT signal
+Date: Wed, 12 Aug 2026 10:35:30 +0300
+Subject: [PATCH 6/9] add support for WDTOVF_PERROUT signal
 
 
 diff --git a/drivers/watchdog/rzg2l_wdt.c b/drivers/watchdog/rzg2l_wdt.c
-index b6a7b75699..afcf713088 100644
+index 3932ca2901..ebe87a1f21 100644
 --- a/drivers/watchdog/rzg2l_wdt.c
 +++ b/drivers/watchdog/rzg2l_wdt.c
 @@ -43,6 +43,8 @@
@@ -23,17 +23,17 @@ index b6a7b75699..afcf713088 100644
  
 -	/* Generate Reset (WDTRSTB) Signal on parity error */
 -	rzg2l_wdt_write(priv, 0, PECR);
-+    if (flags == 0) {
-+        /* Generate Reset (WDTRSTB) Signal on parity error */
-+        rzg2l_wdt_write(priv, 0, PECR);
-+    }
-+    else
-+    {
-+        writel( readl(CPG_WDTRST_SEL) | BIT(4), CPG_WDTRST_SEL);
++	if (flags == 0) {
++		/* Generate Reset (WDTRSTB) Signal on parity error */
++        	rzg2l_wdt_write(priv, 0, PECR);
++    	}
++    	else
++    	{
++        	writel( readl(CPG_WDTRST_SEL) | BIT(4), CPG_WDTRST_SEL);
 +
-+        /* Generate Reset (PEEROUT) Signal on parity error */
-+        rzg2l_wdt_write(priv, BIT(0), PECR);
-+    }
++        	/* Generate Reset (PEEROUT) Signal on parity error */
++        	rzg2l_wdt_write(priv, BIT(0), PECR);
++    	}
  
  	/* Force parity error */
  	rzg2l_wdt_write(priv, PEEN_FORCE, PEEN);

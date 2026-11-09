@@ -143,10 +143,10 @@
 		regulator-always-on;
 	};
 
-	audio_mclock: audio_mclock {
+	audio_mclock: audio-mclock {
 		compatible = "fixed-clock";
 		#clock-cells = <0>;
-		clock-frequency = <11289600>;
+		clock-frequency = <12288000>;
 	};
 
 	clk_ext_camera: clk_ext_camera {
@@ -155,7 +155,7 @@
 		clock-frequency = <24000000>;
 	};
 
-	leds {
+	leds:leds {
 		compatible = "gpio-leds";
 		led_red {
 			gpios = <&pinctrl RZG2L_GPIO(43, 3) GPIO_ACTIVE_HIGH>;
@@ -289,6 +289,10 @@
 };
 
 &ostm1 {
+	status = "okay";
+};
+
+&ostm2 {
 	status = "okay";
 };
 
@@ -477,14 +481,17 @@
 		clocks = <&x1_clk>;
 		clock-names = "x1";
 		assigned-clocks = <&versa3 0>,	/* REF RZ EXT */
-				   		  <&versa3 1>,	/* SE1 Audio CLK1 */
-						  <&versa3 2>,	/* SE2 Audio Master CLK */
-					   	  <&versa3 3>,	/* SE3 HDMI CLK */
-					   	  <&versa3 4>,	/* DIFF1 ETH1/2 CLK */
-					   	  <&versa3 5>;	/* DIFF2 Audio CLK2 */
-		assigned-clock-rates =	<24000000>, <11289600>,
-		                        <12288000>, <25000000>,
-		                        <25000000>, <12288000>;
+				  <&versa3 1>,	/* SE1 Audio CLK1 */
+				  <&versa3 2>,	/* SE2 Audio Master CLK */
+				  <&versa3 3>,	/* SE3 32k CLK */
+				  <&versa3 4>,	/* DIFF1 ETH1/2 CLK */
+				  <&versa3 5>;	/* DIFF2 Audio CLK2 */
+		assigned-clock-rates =	<24000000>, 
+					<11289600>,
+		                        <12288000>, 
+					<32768>,
+		                        <25000000>, 
+					<12288000>;
 		clock-divider-read-only = <1>, <1>, <1>, <1>, <1>;
 		clock-flags = <2176>, <2176>, <2176>, <2052>, <2176>, <2048>;
 	};
@@ -539,12 +546,6 @@
 		reg = <0x38>;
 
 		status = "disabled";
-
-		interrupt-parent = <&pinctrl>;
-		interrupts = <RZG2L_GPIO(43, 1) IRQ_TYPE_LEVEL_LOW>;
-		irq-gpios = <&pinctrl RZG2L_GPIO(43, 1) GPIO_ACTIVE_HIGH>;   /* DSI_TS_nINT */
-		touchscreen-size-x = <1280>;
-		touchscreen-size-y = <800>;
 		vcc-supply = <&reg_3p3v>;
 	};
 };
@@ -641,7 +642,6 @@
 		input-enable;
 	};
 
-
 	eth0_pins: eth0 {
 		pinmux = <RZG2L_PORT_PINMUX(28, 1, 1)>, /* ET0_LINKSTA */
 			 <RZG2L_PORT_PINMUX(27, 1, 1)>, /* ET0_MDC */
@@ -724,7 +724,6 @@
 			pinmux = <RZG2L_PORT_PINMUX(19, 0, 1)>; /* SD1_CD */
 		};
 	};
-
 
 	qspi0_pins: qspi0 {
 		qspi0-data {

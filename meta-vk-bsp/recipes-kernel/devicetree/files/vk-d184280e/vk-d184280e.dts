@@ -2,7 +2,7 @@
 /*
  * Device Tree Source for the Vekatech (VKRZG2LC Dual Cortex-A55)
  *
- * Copyright (C) 2022 Vekatech.
+ * Copyright (C) 2026 Vekatech.
  */
 
 /dts-v1/;
@@ -16,7 +16,7 @@
 #define EE070HT  	1
 #define KD070HDFIA030  	0
 #define KD101WXFID045  	0
-#define WIFI_MODULE_1YN 0
+#define WIFI_MODULE_1YN 1
 
 / {
 	model = "Vekatech VK-D184280E based on r9a07g044c2";
@@ -61,7 +61,7 @@
 			reg = <0x0 0x58000000 0x0 0x10000000>;
 		};
 
-		mmp_reserved: linux,multimedia {
+		mmp_reserved: linux,multimedia@68000000 {
 			compatible = "shared-dma-pool";
 			reusable;
 			reg = <0x00000000 0x68000000 0x0 0x8000000>;
@@ -185,6 +185,84 @@
 
 &gpu {
 	mali-supply = <&reg_1p1v>;
+};
+
+&du {
+	status = "okay";
+};
+
+&dsi {
+	status = "okay";
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		port@1 {
+			reg = <1>;
+			dsi0_out: endpoint {
+				data-lanes = <1 2 3 4>;
+				remote-endpoint = <&panel_in>;
+			};
+		};
+	};
+
+#if EE070HT
+	mipi_panel: panel@0 {
+		status = "okay";
+		power-supply = <&reg_5p0v>;
+		reg = <0>;
+		backlight = <&backlight>;
+		compatible = "vekatech,vklcd07","fitipower,ek79007ad";
+
+		reset-gpios = <&pinctrl RZG2L_GPIO(44, 0) GPIO_ACTIVE_LOW>;
+		lcd-model = "vklcd07";
+		dsi-lanes = <4>;
+		port {
+			panel_in: endpoint {
+				remote-endpoint = <&dsi0_out>;
+			};
+		};
+	};
+#endif
+#if KD070HDFIA030
+	mipi_panel: panel@0 {
+		status = "okay";
+		power-supply = <&reg_5p0v>;
+		reg = <0>;
+		backlight = <&backlight>;
+		compatible = "vekatech,vklcd-kd070hdfia030","fitipower,ek79007ad";
+
+		reset-gpios = <&pinctrl RZG2L_GPIO(44, 0) GPIO_ACTIVE_LOW>;
+		lcd-model = "kd070hdfia030";
+		dsi-lanes = <4>;
+		port {
+			panel_in: endpoint {
+				remote-endpoint = <&dsi0_out>;
+			};
+		};
+	};
+#endif
+#if KD101WXFID045
+	mipi_panel: panel@0 {
+		status = "okay";
+		power-supply = <&reg_5p0v>;
+		reg = <0>;
+		backlight = <&backlight>;
+		compatible = "vekatech,vklcd-kd101wxfid045","fitipower,ek79202d";
+
+		reset-gpios = <&pinctrl RZG2L_GPIO(44, 0) GPIO_ACTIVE_LOW>;
+		lcd-model = "kd101wxfid045";
+		dsi-lanes = <4>;
+		video-mode = <2>;
+		port {
+			panel_in: endpoint {
+				remote-endpoint = <&dsi0_out>;
+			};
+		};
+	};
+#endif
 };
 
 &wdt0 {
@@ -360,17 +438,26 @@
 		#clock-cells = <1>;
 		clocks = <&x1_clk>;
 		clock-names = "x1";
-		assigned-clocks = <&versa3 0>,	/* DIFF2 Audio CLK2 */
-				   		  <&versa3 1>,	/* DIFF1 ETH1/2 CLK */
-						  <&versa3 2>,	/* SE3 32768Hz CLK */
-					   	  <&versa3 3>,	/* SE2 Audio Master CLK */
-					   	  <&versa3 4>,	/* SE1 Audio CLK1 */
-					   	  <&versa3 5>;	/* REF RZ EXT */
-		assigned-clock-rates =	<12288000>, <25000000>,
-		                        <32768>, <12288000>,
-		                        <11289600>, <24000000>;
-		clock-divider-read-only = <1>, <1>, <1>, <1>, <1>;
-		clock-flags = <2176>, <2176>, <2176>, <2052>, <2176>, <2048>;
+
+		renesas,settings = [
+		    00 00 11 19 00 42 cc 2b 04 32 00 1a 5f 12 90 79
+		    02 4c 00 00 00 00 00 00 10 24 19 bf 3f 30 90 86
+		    80 42 45 c4 9c
+		];
+
+		assigned-clocks = <&versa3 0>,	/* REF RZ EXT */
+				  <&versa3 1>,	/* SE1 Audio CLK1 */
+				  <&versa3 2>,	/* SE2 Audio Master CLK */
+				  <&versa3 3>,	/* SE3 32768Hz CLK */
+				  <&versa3 4>,	/* DIFF1 ETH1/2 CLK */
+				  <&versa3 5>;	/* DIFF2 Audio CLK2 */
+
+		assigned-clock-rates =	<24000000>, 
+					<11289600>,
+		                        <12288000>, 
+					<32768>,
+		                        <25000000>, 
+					<12288000>;
 	};
 
 	rtc: isl1208@6f {
@@ -407,6 +494,7 @@
 		reg = <0x5d>;
 
 		status = "okay";
+		VDDIO-supply = <&reg_3p3v>;
 
 		interrupt-parent = <&pinctrl>;
 		interrupts = <RZG2L_GPIO(43, 1) IRQ_TYPE_LEVEL_LOW>;
@@ -424,6 +512,7 @@
 		reg = <0x38>;
 
 		status = "okay";
+		vcc-supply = <&reg_3p3v>;
 
 		interrupt-parent = <&pinctrl>;
 		interrupts = <RZG2L_GPIO(43, 1) IRQ_TYPE_LEVEL_LOW>;
@@ -433,7 +522,6 @@
 		touchscreen-size-y = <800>;
 		touchscreen-inverted-x;
 		touchscreen-inverted-y;
-		vcc-supply = <&reg_3p3v>;
 	};
 #endif
 };
@@ -443,120 +531,6 @@
 	pinctrl-names = "default";
 	channel="channel_A";
 	status = "okay";
-};
-
-&dsi {
-	status = "okay";
-	#address-cells = <1>;
-	#size-cells = <0>;
-
-	ports {
-		port@1 {
-			dsi0_out: endpoint {
-				data-lanes = <1 2 3 4>;
-				remote-endpoint = <&panel_in>;
-			};
-		};
-	};
-
-#if EE070HT
-	mipi_panel: panel@0 {
-		status = "okay";
-		power-supply = <&reg_5p0v>;
-		reg = <0>;
-		backlight = <&backlight>;
-		compatible = "vekatech,vklcd07","fitipower,ek79007ad";
-
-		reset-gpios = <&pinctrl RZG2L_GPIO(44, 0) GPIO_ACTIVE_LOW>;
-		lcd-model = "vklcd07";
-		dsi-lanes = <4>;
-		port {
-			panel_in: endpoint {
-				remote-endpoint = <&dsi0_out>;
-			};
-		};
-	};
-#endif
-#if KD070HDFIA030
-	mipi_panel: panel@0 {
-		status = "okay";
-		power-supply = <&reg_5p0v>;
-		reg = <0>;
-		backlight = <&backlight>;
-		compatible = "vekatech,vklcd-kd070hdfia030","fitipower,ek79007ad";
-
-		reset-gpios = <&pinctrl RZG2L_GPIO(44, 0) GPIO_ACTIVE_LOW>;
-		lcd-model = "kd070hdfia030";
-		dsi-lanes = <4>;
-		port {
-			panel_in: endpoint {
-				remote-endpoint = <&dsi0_out>;
-			};
-		};
-	};
-#endif
-#if KD101WXFID045
-	mipi_panel: panel@0 {
-		status = "okay";
-		power-supply = <&reg_5p0v>;
-		reg = <0>;
-		backlight = <&backlight>;
-		compatible = "vekatech,vklcd-kd101wxfid045","fitipower,ek79202d";
-
-		reset-gpios = <&pinctrl RZG2L_GPIO(44, 0) GPIO_ACTIVE_LOW>;
-		lcd-model = "kd101wxfid045";
-		dsi-lanes = <4>;
-		video-mode = <2>;
-		port {
-			panel_in: endpoint {
-				remote-endpoint = <&dsi0_out>;
-			};
-		};
-	};
-#endif
-};
-
-&du {
-	status = "okay";
-};
-
-&sbc {
-	status = "disabled";
-
-	flash@0 {
-		compatible = "mxicy,mx25l51245g", "jedec,spi-nor";
-		spi-max-frequency = <50000000>;
-		reg = <0>;
-		spi-rx-bus-width = <4>;
-		spi-tx-bus-width = <4>;
-		m25p,fast-read;
-
-		partitions {
-			compatible = "fixed-partitions";
-			#address-cells = <1>;
-			#size-cells = <1>;
-
-			partition@0 {
-				label = "bl2";
-				reg = <0x00000000 0x0001D200>;
-				read-only;
-			};
-			partition@1D200 {
-				label = "fip";
-				reg = <0x0001D200 0x001C2E00>;
-				read-only;
-			};
-			partition@1E0000 {
-				label = "env";
-				reg = <0x001E0000 0x00020000>;
-				read-only;
-			};
-			partition@200000 {
-				label = "qspi-area";
-				reg = <0x00200000 0x03E00000>;
-			};
-		};
-	};
 };
 
 &pinctrl {

@@ -32,8 +32,44 @@
 };
 
 &sbc {
+	status = "okay";
+
 	pinctrl-0 = <&qspi0_pins>;
 	pinctrl-names = "default";
 
-	status = "okay";
+	flash@0 {
+		compatible = "mxicy,mx25l51245g", "jedec,spi-nor";
+		spi-max-frequency = <50000000>;
+		reg = <0>;
+		spi-rx-bus-width = <4>;
+		spi-tx-bus-width = <4>;
+		m25p,fast-read;
+
+		partitions {
+			compatible = "fixed-partitions";
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			partition@0 {
+				label = "bl2";
+				reg = <0x00000000 0x0001D200>;
+				read-only;
+			};
+			partition@1D200 {
+				label = "fip";
+				reg = <0x0001D200 0x001C2E00>;
+				read-only;
+			};
+			partition@1E0000 {
+				label = "env";
+				reg = <0x001E0000 0x00020000>;
+				read-only;
+			};
+			partition@200000 {
+				label = "qspi-area";
+				reg = <0x00200000 0x03E00000>;
+			};
+		};
+	};
 };
+

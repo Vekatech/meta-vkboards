@@ -12,5 +12,5 @@
 #part /boot --source bootimg-partition --fstype=vfat  --label bootloader  --align 1024 --size 100M --ondisk mmcblk
 #part /     --source rootfs            --fstype=ext4  --label rootfs      --align 4    --ondisk mmcblk
 
-part /boot --source bootimg-partition --fstype=vfat  --label bootloader   --align 1024 --size 100M --use-uuid
+part /boot --source bootimg-partition --fstype=vfat  --label bootloader   --align 2048 --size 100M --use-uuid
 part /     --source rootfs            --fstype=ext4  --label rootfs       --align 4    --use-uuid

@@ -1,0 +1,137 @@
+/*
+ * Copyright 2026 Vekatech
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ */
+
+#define AD5933	0
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/pinctrl/rzg2l-pinctrl.h>
+#include <dt-bindings/gpio/gpio.h>
+
+/ {
+	compatible = "vekatech,vkrzg2lc", "renesas,r9a07g044", "renesas,r9a07g044c2";
+};
+
+#if AD5933
+
+&{/} {
+	vcc_ad5933: regulator-ad5933 {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc-ad5933";
+
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+
+		gpio = <&pinctrl RZG2L_GPIO(42, 2) GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+
+		startup-delay-us = <50000>;
+
+	       /* 
+		* regulator-always-on;
+		* regulator-boot-on;
+		*/
+		vin-supply = <&reg_5p0v>;
+	};
+
+	ad5933_ext_osc: external-oscillator {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <16000000>; /* 16 MHz */
+		clock-output-names = "ad5933-mclk";
+	};
+};
+
+#else
+
+&pinctrl {
+	vklcr_pwr_en {
+		gpios = <RZG2L_GPIO(42, 2) GPIO_ACTIVE_HIGH>;
+		output-low;
+		line-name = "PWR_EN";
+	};
+};
+
+#endif
+
+&pinctrl {
+	vklcr_bias {
+		gpios = <RZG2L_GPIO(40, 2) GPIO_ACTIVE_HIGH>;
+		output-low;
+		line-name = "BIAS";
+	};
+
+	vklcr_gainL {
+		gpios = <RZG2L_GPIO(42, 4) GPIO_ACTIVE_HIGH>;
+		output-low;
+		line-name = "GainL";
+	};
+
+	vklcr_gainH {
+		gpios = <RZG2L_GPIO(42, 3) GPIO_ACTIVE_HIGH>;
+		output-low;
+		line-name = "GainH";
+	};
+
+	vklcr_vx_Ix {
+		gpios = <RZG2L_GPIO(39, 2) GPIO_ACTIVE_HIGH>;
+		output-low;
+		line-name = "vx_IX";
+	};
+
+
+	vklcr_agc_rst {
+		gpios = <RZG2L_GPIO(41, 1) GPIO_ACTIVE_HIGH>;
+		output-low;
+		line-name = "AGC_RST";
+	};
+
+	vklcr_ur {
+		gpios = <RZG2L_GPIO(39, 0) GPIO_ACTIVE_LOW>;
+		input;
+		line-name = "UR";
+	};
+
+	vklcr_or {
+		input;
+		gpios = <RZG2L_GPIO(39, 1) GPIO_ACTIVE_LOW>;
+		line-name = "OR";
+	};
+
+	i2c3_pins: i2c3 {
+		pinmux = <RZG2L_PORT_PINMUX(18, 0, 3)>, /* SDA */
+			 <RZG2L_PORT_PINMUX(18, 1, 3)>; /* SCL */
+	};
+};
+
+&i2c3 {
+	pinctrl-0 = <&i2c3_pins>;
+	pinctrl-names = "default";
+	clock-frequency = <400000>;
+	status = "okay";
+#if AD5933
+	impedance-analyzer@0d {
+		compatible = "adi,ad5933";
+		reg = <0x0d>;
+        
+		vdd-supply = <&vcc_ad5933>; 
+
+		clocks = <&ad5933_ext_osc>;
+		clock-names = "mclk";
+	};
+#endif
+};
+
+

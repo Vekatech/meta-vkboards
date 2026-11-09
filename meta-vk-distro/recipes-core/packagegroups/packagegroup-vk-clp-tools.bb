@@ -23,6 +23,7 @@ RDEPENDS:packagegroup-vk-clp-tools-base = " \
 	busybox \
 	ckermit \
 	dosfstools \
+	util-linux \
 	ethtool \
 	i2c-tools \
 	minicom \
@@ -34,10 +35,12 @@ RDEPENDS:packagegroup-vk-clp-tools-base = " \
 
 RDEPENDS:packagegroup-vk-clp-tools-utils = " \
     libgpiod \
-	libubootenv \
+    libgpiod-tools \
+    libubootenv \
     libubootenv-bin \
     openssh-sshd \
     openssh-sftp-server \
     openssh-keygen \
-	rsync \
+    rsync \
+    nano \
 "

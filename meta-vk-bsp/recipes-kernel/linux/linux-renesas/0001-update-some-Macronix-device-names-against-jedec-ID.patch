@@ -1,7 +1,7 @@
-From d2ad61b532ccf9650db4fe2f5f7b2ddc184ac575 Mon Sep 17 00:00:00 2001
+From 0ba45bdb8e7a95192f2695f66b50c381ee655a7f Mon Sep 17 00:00:00 2001
 From: dtodoroff <d.todorov@vekatech.com>
-Date: Fri, 18 Jul 2025 15:08:31 +0300
-Subject: [PATCH 1/2] update some Macronix device names against jedec ID
+Date: Thu, 19 Feb 2026 17:57:07 +0200
+Subject: [PATCH 1/6] update some Macronix device names against jedec ID
 
 
 diff --git a/drivers/mtd/spi-nor/macronix.c b/drivers/mtd/spi-nor/macronix.c

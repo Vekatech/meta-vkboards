@@ -12,6 +12,7 @@ FILESEXTRAPATHS:prepend := "${THISDIR}/files:"
 
 SRC_URI = " \
     ${@' '.join(['file://%s' % f for f in d.getVar('KERNEL_DTS').split()])} \
+    ${@' '.join(['file://%s' % f for f in d.getVar('KERNEL_DTSI').split()])} \
     ${@' '.join(['file://%s' % f for f in d.getVar('KERNEL_DEVICETREE_OVERLAY').split()])} \
     "
 
@@ -43,6 +44,7 @@ do_compile() {
         # Preprocess the DTS file with cpp
         local preprocessed_file="${output_file}.tmp"
         cpp -nostdinc -undef -D__DTS__ -x assembler-with-cpp \
+	    -I ./ \
             -I ${DTS_BASE} \
             -I ${DTS_BASE}/renesas \
             -I ${STAGING_KERNEL_DIR}/include \
@@ -79,8 +81,11 @@ do_install() {
     install -d ${D}/boot
     install -m 0644 ${DTB_OUTPUT_DIR}/*.dtb ${D}/boot/
 
-    install -d ${D}/boot/overlays
-    install -m 0644 ${OVERLAY_OUTPUT_DIR}/*.dtbo ${D}/boot/overlays/
+    if ls ${OVERLAY_OUTPUT_DIR}/*.dtbo 1>/dev/null 2>&1; then
+	install -d ${D}/boot/overlays
+	install -m 0644 ${OVERLAY_OUTPUT_DIR}/*.dtbo ${D}/boot/overlays/
+    fi
+
 }
 
 do_deploy() {

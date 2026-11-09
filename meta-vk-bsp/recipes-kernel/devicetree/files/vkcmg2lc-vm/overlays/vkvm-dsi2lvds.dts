@@ -1,0 +1,168 @@
+/*
+ * Copyright 2026 Vekatech
+ *
+ * This program is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License
+ * as published by the Free Software Foundation; either version 2
+ * of the License, or (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ */
+
+/dts-v1/;
+/plugin/;
+
+#include <dt-bindings/pinctrl/rzg2l-pinctrl.h>
+#include <dt-bindings/gpio/gpio.h>
+
+/{
+	compatible = "vekatech,vk-vmcarrier", 
+	             "renesas,r9a07g044l2", 
+		     "renesas,r9a07g044";
+};
+
+&{/} {
+	reg_sn65dsi84_1v8: regulator-lvds {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc-lvds";
+
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+
+		gpio = <&pinctrl RZG2L_GPIO(42, 3) GPIO_ACTIVE_HIGH>;
+		enable-active-high;
+
+		startup-delay-us = <1000>;
+		regulator-always-on;
+		regulator-boot-on;
+	};
+
+	lvds_panel: lvds-panel {
+		status = "okay";
+		compatible = "panel-lvds";
+
+		power-supply = <&reg_sn65dsi84_1v8>;
+		backlight = <&backlight>;
+
+		rotation = <90>;
+
+		width-mm = <344>;
+		height-mm = <194>;
+
+		enable-gpios = <&pinctrl RZG2L_GPIO(4, 1) GPIO_ACTIVE_HIGH>;
+
+		data-mapping = "jeida-18";
+
+		panel-timing {
+			clock-frequency = <69300000>;
+		    
+			hactive = <1366>;
+			vactive = <768>;
+
+			hfront-porch = <16>;
+			hsync-len = <34>;
+			hback-porch = <50>;
+
+			vfront-porch = <12>;
+			vsync-len = <6>;
+			vback-porch = <2>;
+
+			hsync-active = <0>;
+			vsync-active = <0>;
+			de-active = <1>;
+			pixelclk-active = <0>;
+		};
+
+		port {
+			panel_in_a: endpoint {
+				remote-endpoint = <&bridge_out_a>;
+			};
+		};
+	};
+
+	backlight: backlight {
+		compatible = "pwm-backlight";
+		brightness-levels = <0 8 32 64 96 128 160 192 224 255>;
+		default-brightness-level = <8>;
+		power-supply = <&reg_5p0v>;
+		pwms = <&gpt3 0 40000 0>;
+		status = "okay";
+	};
+};
+
+&du {
+	status = "okay";
+};
+
+&dsi {
+	status = "okay";
+	ports {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		port@1 {
+			reg = <1>;
+			dsi0_out: endpoint {
+				data-lanes = <1 2 3 4>;
+				remote-endpoint = <&bridge_in>;
+			};
+		};
+	};
+};
+
+&i2c1 {
+	#address-cells = <1>;
+	#size-cells = <0>;
+
+	bridge@2c {
+		status = "okay";
+		compatible = "ti,sn65dsi84";
+
+		reg = <0x2c>;
+		enable-gpios = <&pinctrl RZG2L_GPIO(5, 2) GPIO_ACTIVE_HIGH>;
+
+		vcc-supply = <&reg_sn65dsi84_1v8>;
+
+		ports {
+			#address-cells = <1>;
+			#size-cells = <0>;
+
+			port@0 {
+				reg = <0>;
+				bridge_in: endpoint {
+					remote-endpoint = <&dsi0_out>;
+					data-lanes = <1 2 3 4>;
+				};
+			};
+
+			port@2 {
+				reg = <2>;
+				bridge_out_a: endpoint {
+					remote-endpoint = <&panel_in_a>;
+				};
+			};
+			// port@3 {
+			// 	reg = <3>;
+			// 	bridge_out_b: endpoint {
+			// 		remote-endpoint = <&panel_in_b>;
+			// 	};
+			// };
+		};
+	};
+};
+
+
+&pinctrl {
+	gpt3_pins: gpt3 {
+		pinmux = <RZG2L_PORT_PINMUX(19, 1, 2)>; /* Channel B */
+	};
+};
+
+&gpt3 {
+	pinctrl-0 = <&gpt3_pins>;
+	pinctrl-names = "default";
+	channel="channel_B";
+	status = "okay";
+};
